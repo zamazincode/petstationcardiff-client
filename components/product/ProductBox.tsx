@@ -9,7 +9,7 @@ export default function ProductBox({ data }: { data: Product }) {
     const imgUrl = getStrapiURL();
 
     return (
-        <div className="relative h-full max-w-[300px] flex flex-col">
+        <div className="relative !max-w-[300px] h-full !min-w-[180px] flex flex-col">
             {data.salePrice && (
                 <div className="bg-green-600 px-2.5 py-0.5 text-white rounded-md text-base absolute top-2 left-2 z-10">
                     SALE

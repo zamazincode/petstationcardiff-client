@@ -1,3 +1,4 @@
+import Footer from "@/components/footer/Footer";
 import Header from "@/components/header/Header";
 
 export default function RoutesLayout({
@@ -8,7 +9,8 @@ export default function RoutesLayout({
     return (
         <>
             <Header />
-            <main>{children}</main>
+            <main className="min-h-screen">{children}</main>
+            <Footer />
         </>
     );
 }

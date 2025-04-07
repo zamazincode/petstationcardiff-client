@@ -6,6 +6,7 @@
 
 @theme inline {
     --color-copy: var(--copy);
+    --color-copy-light: var(--copy-light);
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --font-sour-gummy: var(--font-sour-gummy);
@@ -55,6 +56,7 @@
         rgba(234, 234, 255, 1) 100%
     );
     --copy: #1c252e;
+    --copy-light: #637381;
     --primary: #612cc9;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -138,17 +140,11 @@
         width: 100%;
         height: 100%;
     }
-
-    .swiper-slide {
-        max-width: 300px;
-        min-width: 150px;
-        height: 100%;
-    }
 }
 
 @layer components {
     .container {
-        @apply w-full !mx-auto !max-w-7xl;
+        @apply w-full !mx-auto !max-w-7xl max-md:px-8;
     }
 
     .gradient {

@@ -1,11 +1,22 @@
 import LinkButton from "@/components/ui/LinkButton";
-import { ShoppingCart } from "lucide-react";
+import {
+    ChevronLeft,
+    ChevronRight,
+    MoveRight,
+    ShoppingCart,
+} from "lucide-react";
 import Image from "next/image";
-import FeaturedCarousel from "@/components/featured-carousel";
+import ProductsCarousel from "@/components/products-carousel";
+import Categories from "@/components/homepage/categories";
+import Brands from "@/components/homepage/brands";
+import Testimonials from "@/components/homepage/testimonials";
+import MoveTop from "@/components/move-top";
 
 export default function Home() {
     return (
         <>
+            <MoveTop />
+
             {/* Hero */}
             <section className="container rounded-md bg-[#EEF0FF] md:p-8 flex items-center justify-center mt-4">
                 <div className="flex-1">
@@ -21,7 +32,7 @@ export default function Home() {
                             height={438 / 1.3}
                         />
                         <div className="space-y-4">
-                            <p className="text-copy/80">
+                            <p className="text-copy-light">
                                 Discover the best for your furry friends! From
                                 premium pet food to cozy accessories, we provide
                                 everything your pet needs for a happy and
@@ -44,29 +55,95 @@ export default function Home() {
             </section>
 
             {/* Featured Products */}
-            <section className="container rounded-md bg-[#E1F2F9] p-8 mt-12 flex lg:items-center lg:justify-between lg:gap-8 lg:flex-row flex-col ">
-                <div className="space-y-8 flex-1">
-                    <h2 className="text-5xl font-semibold">
+            <section className="container rounded-md bg-[#E1F2F9] px-8 py-12 mt-12 flex gap-8 lg:justify-between lg:flex-row flex-col relative">
+                <div className="space-y-8 flex-[2]">
+                    <h2 className="text-5xl font-semibold font-sour-gummy">
                         Check Out Our <br /> Featured Products!
                     </h2>
-                    <p className="max-w-[460px] lg:block hidden">
+                    <p className="max-w-[460px]">
                         Lorem, ipsum dolor sit amet consectetur adipisicing
                         elit. Eveniet quae corporis iure nobis molestiae
                         doloremque
                     </p>
-                    <LinkButton href="/products" className="lg:block hidden">
+                    <LinkButton href="/products" className="group gap-2">
                         Explore All
+                        <MoveRight className="group-hover:ml-2 transition-all" />
                     </LinkButton>
                 </div>
-                <div className="flex-1 h-full">
-                    <FeaturedCarousel />
+                <div className="flex gap-4 absolute right-7 top-5 z-[11]">
+                    <div className="prevEl bg-primary/90 text-white p-2 w-fit rounded-full z-10 cursor-pointer hover:bg-primary">
+                        <ChevronLeft />
+                    </div>
+                    <div className="nextEl bg-primary/90 text-white p-2 w-fit rounded-full z-10 cursor-pointer hover:bg-primary">
+                        <ChevronRight />
+                    </div>
+                </div>
+                <div className="flex-[3] relative overflow-hidden">
+                    <div className="h-full w-1/5 absolute right-0 top-0 bg-gradient-to-r from-[rgba(255,255,255,0)] to-99% to-[#E1F2F9] pointer-events-none  z-10" />
+                    <ProductsCarousel />
                 </div>
             </section>
 
             {/* Categories */}
-            <section className="container md:p-8 mt-12 flex items-center justify-between gap-8">
-                <h2 className="text-5xl font-semibold">Popular Categories</h2>
-                <div className=""></div>
+            <section className="container my-16">
+                <h2 className="text-6xl font-semibold font-sour-gummy mb-10">
+                    Shop by Categories
+                </h2>
+                <Categories />
+            </section>
+
+            {/* Brands */}
+            <section className=" my-18 bg-gradient-to-b from-[#EEF0FF] to-[#fff] pb-12 pt-20">
+                <div className="flex container items-center gap-4 mb-12 lg:flex-row flex-col">
+                    <h2 className="text-9xl leading-0 font-semibold font-sour-gummy mb-10">
+                        Brands
+                    </h2>
+                    <p className="max-w-[700px] text-sm">
+                        We've brought together the best brands for your beloved
+                        pets! Support their health and happiness with reliable,
+                        nutritious, and vet-approved products. Find the
+                        high-quality food and accessories you're looking for
+                        here!
+                    </p>
+                </div>
+                <Brands />
+            </section>
+
+            {/* Campaigns */}
+            <section className="container my-18 flex flex-wrap gap-4 ">
+                <div className="flex-[3] max-h-[600px] ">
+                    <Image
+                        src={"/campaign.png"}
+                        alt="Campaign"
+                        width={600}
+                        height={600}
+                        className="object-cover rounded-xl !w-full !h-full"
+                    />
+                </div>
+
+                <div className="flex-[2] flex flex-col gap-4">
+                    <div className="flex-1 min-w-[300px] h-auto !w-full relative">
+                        <Image
+                            src={"/campaign.png"}
+                            alt="Campaign"
+                            fill
+                            className="object-cover rounded-xl w-full h-auto"
+                        />
+                    </div>
+                    <div className="flex-1 min-w-[300px] h-auto !w-full relative">
+                        <Image
+                            src={"/campaign.png"}
+                            alt="Campaign"
+                            fill
+                            className="object-cover rounded-xl w-full h-auto"
+                        />
+                    </div>
+                </div>
+            </section>
+
+            {/* Reviews */}
+            <section className="bg-[#E1F2F9]  FFECE5 mt-12 py-12 ">
+                <Testimonials />
             </section>
         </>
     );

@@ -85,7 +85,17 @@ export default function LoginPage() {
                     />
                 </div>
 
-                <div className="mt-4 text-center text-sm">
+                <div className="mt-4 text-sm">
+                    Forgot your password?
+                    <Link
+                        className="hover:underline ml-2 text-primary hover:text-primary/70 transition-colors"
+                        href="forgot-password"
+                    >
+                        Reset Password
+                    </Link>
+                </div>
+
+                <div className="mt-4 text-sm">
                     Don't have an account?
                     <Link
                         className="hover:underline ml-2 text-primary hover:text-primary/70 transition-colors"

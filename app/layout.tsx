@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Sour_Gummy, Poppins } from "next/font/google";
 import "./globals.css";
 
+import { Toaster } from "@/components/ui/sonner";
+
 const sourGummy = Sour_Gummy({
     variable: "--font-sour-gummy",
 });
@@ -28,6 +30,7 @@ export default function RootLayout({
                 className={`${poppings.className} ${sourGummy.variable} antialiased`}
             >
                 {children}
+                <Toaster />
             </body>
         </html>
     );
