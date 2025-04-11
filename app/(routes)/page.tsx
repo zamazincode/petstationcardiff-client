@@ -11,6 +11,7 @@ import Categories from "@/components/homepage/categories";
 import Brands from "@/components/homepage/brands";
 import Testimonials from "@/components/homepage/testimonials";
 import MoveTop from "@/components/move-top";
+import Campaigns from "@/components/homepage/campaigns";
 
 export default function Home() {
     return (
@@ -93,9 +94,9 @@ export default function Home() {
             </section>
 
             {/* Brands */}
-            <section className=" my-18 bg-gradient-to-b from-[#EEF0FF] to-[#fff] pb-12 pt-20">
-                <div className="flex container items-center gap-4 mb-12 lg:flex-row flex-col">
-                    <h2 className="text-9xl leading-0 font-semibold font-sour-gummy mb-10">
+            <section className=" mt-18 mb-24  bg-gradient-to-b from-[#EEF0FF] to-[#fff] pb-12 pt-20">
+                <div className="flex container lg:items-center gap-4 mb-12 lg:flex-row flex-col">
+                    <h2 className="text-9xl leading-0 font-semibold font-sour-gummy mb-12">
                         Brands
                     </h2>
                     <p className="max-w-[700px] text-sm">
@@ -110,39 +111,21 @@ export default function Home() {
             </section>
 
             {/* Campaigns */}
-            <section className="container my-18 flex flex-wrap gap-4 ">
-                <div className="flex-[3] max-h-[600px] ">
-                    <Image
-                        src={"/campaign.png"}
-                        alt="Campaign"
-                        width={600}
-                        height={600}
-                        className="object-cover rounded-xl !w-full !h-full"
-                    />
+            <section className="container my-18">
+                <div className="mb-8">
+                    <h5 className="flex items-center gap-1 font-light">
+                        <span className="w-8 h-2 rounded-full bg-primary" />
+                        Campaigns
+                    </h5>
+                    <h2 className="font-bold font-sour-gummy text-6xl">
+                        Explore Box Deals
+                    </h2>
                 </div>
-
-                <div className="flex-[2] flex flex-col gap-4">
-                    <div className="flex-1 min-w-[300px] h-auto !w-full relative">
-                        <Image
-                            src={"/campaign.png"}
-                            alt="Campaign"
-                            fill
-                            className="object-cover rounded-xl w-full h-auto"
-                        />
-                    </div>
-                    <div className="flex-1 min-w-[300px] h-auto !w-full relative">
-                        <Image
-                            src={"/campaign.png"}
-                            alt="Campaign"
-                            fill
-                            className="object-cover rounded-xl w-full h-auto"
-                        />
-                    </div>
-                </div>
+                <Campaigns />
             </section>
 
-            {/* Reviews */}
-            <section className="bg-[#E1F2F9]  FFECE5 mt-12 py-12 ">
+            {/* Testimonials */}
+            <section className="bg-[#E1F2F9]   mt-12 py-12 ">
                 <Testimonials />
             </section>
         </>

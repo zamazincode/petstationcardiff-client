@@ -43,7 +43,10 @@ export default function SearchBar() {
                 onChange={handleChange}
                 className="bg-transparent outline-0 text-sm w-full"
             />
-            <button onClick={handleSearch} className="ml-2">
+            <button
+                onClick={handleSearch}
+                className="ml-2 cursor-pointer hover:text-primary transition-colors"
+            >
                 <Search />
             </button>
         </div>

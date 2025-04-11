@@ -1,4 +1,4 @@
-import { Brand, Category, Pet } from "@/lib/constants/definitions";
+import { Brand, Pet } from "@/lib/constants/definitions";
 import { getStrapiURL } from "@/lib/utils";
 
 const BASE_URL = getStrapiURL();

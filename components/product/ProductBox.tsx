@@ -17,7 +17,7 @@ export default function ProductBox({ data }: { data: Product }) {
             )}
 
             <Link
-                href={"/product/" + data.slug}
+                href={"/products/" + data.slug}
                 className="bg-white rounded-md aspect-square max-h-[280px] relative flex items-center justify-center"
             >
                 <Image
@@ -31,13 +31,13 @@ export default function ProductBox({ data }: { data: Product }) {
             <div className="mt-2 space-y-2 flex flex-col justify-between h-full">
                 <div>
                     <Link
-                        href={data.category.slug}
+                        href={data.category?.slug || "#"}
                         className="text-sm text-gray-600 font-light hover:text-gray-900 transition-colors"
                     >
-                        {data.category.name}
+                        {data.category?.name}
                     </Link>
                     <Link
-                        href={"/product/" + data.slug}
+                        href={"/products/" + data.slug}
                         className="text-copy font-semibold max-w-full text-wrap line-clamp-2"
                     >
                         {data.name}

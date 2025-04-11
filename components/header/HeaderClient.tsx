@@ -19,7 +19,7 @@ import { LogoutButton } from "../LogoutButton";
 
 export default function HeaderClient({ isAuth }: { isAuth: boolean }) {
     return (
-        <div className="w-full p-4 lg:block hidden">
+        <div className="w-full py-4 lg:block hidden">
             <header className="container flex justify-between items-center">
                 <Logo variant="link" />
 
@@ -70,7 +70,7 @@ export default function HeaderClient({ isAuth }: { isAuth: boolean }) {
                             <NavigationMenuItem>
                                 <NavigationMenuTrigger
                                     isIcon={false}
-                                    className="p-2 rounded-full border cursor-pointer"
+                                    className="p-2 h-full !aspect-square rounded-full border cursor-pointer"
                                 >
                                     <Link href="/profile" className="">
                                         <User2 />

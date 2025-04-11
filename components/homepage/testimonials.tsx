@@ -17,7 +17,7 @@ export default function Testimonials() {
             <div className="container flex justify-between items-end">
                 <div>
                     <h5 className="flex items-center gap-1 font-light">
-                        <span className="w-8 h-2 rounded-full bg-primary" />{" "}
+                        <span className="w-8 h-2 rounded-full bg-primary" />
                         Testimonials
                     </h5>
                     <h2 className="font-bold font-sour-gummy text-6xl">
@@ -44,7 +44,7 @@ export default function Testimonials() {
                     }}
                     slidesPerView={"auto"}
                     spaceBetween={20}
-                    className="cursor-grab lg:!pl-32 lg:!pr-12"
+                    className="cursor-grab lg:!pl-32 lg:!pr-32"
                 >
                     {testimonials.map((testimonial) => (
                         <>

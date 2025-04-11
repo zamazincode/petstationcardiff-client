@@ -41,3 +41,9 @@ export type Product = {
     trackStock: boolean;
     weight: number;
 };
+
+export type Campaign = {
+    id: number;
+    productSlug: string;
+    image: Image;
+};

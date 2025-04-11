@@ -7,6 +7,7 @@ import { getStrapiURL } from "@/lib/utils";
 import Link from "next/link";
 import { Brand } from "@/lib/constants/definitions";
 import Marquee from "react-fast-marquee";
+import { Skeleton } from "../ui/skeleton";
 
 export default function Brands() {
     const [brands, setBrands] = useState<Brand[] | null>(null);
@@ -33,23 +34,28 @@ export default function Brands() {
     }, []);
 
     return (
-        <div>
-            <Marquee pauseOnHover autoFill>
-                {brands?.map((brand) => (
+        <Marquee pauseOnHover autoFill>
+            {loading ? (
+                <div className="uppercase text-xl cursor-pointer rounded-full border hover:bg-primary/10 transition-colors text-copy flex items-center justify-center gap-2.5 border-primary overflow-hidden ml-4 h-[130px] w-[200px]">
+                    <Skeleton className="w-full h-full" />
+                </div>
+            ) : (
+                brands?.map((brand) => (
                     <Link
                         key={brand.id}
                         href={"/products?brand=" + brand.slug}
-                        className="uppercase text-xl cursor-pointer rounded-full px-6 border hover:bg-primary/10 transition-colors text-copy flex items-center justify-center gap-2.5 border-primary overflow-hidden ml-4 h-[120px]"
+                        className="uppercase text-xl cursor-pointer rounded-full border hover:bg-primary/10 transition-colors text-copy flex items-center justify-center gap-2.5 border-primary overflow-hidden ml-4 h-[130px] w-[200px] px-4 !py-4"
                     >
                         <Image
                             src={getStrapiURL() + brand.logo?.url || ""}
-                            width={150}
-                            height={150}
+                            width={120}
+                            height={120}
                             alt={brand.name}
+                            className="object-contain"
                         />
                     </Link>
-                ))}
-            </Marquee>
-        </div>
+                ))
+            )}
+        </Marquee>
     );
 }

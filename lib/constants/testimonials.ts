@@ -6,6 +6,7 @@ export default [
         starCount: 5,
         name: "Amanda Davies",
         gender: "woman",
+        color: "#1C6C76",
     },
     {
         id: 2,
@@ -14,6 +15,7 @@ export default [
         starCount: 5,
         name: "Claire Jones",
         gender: "woman",
+        color: "#722C9A",
     },
     {
         id: 3,
@@ -21,6 +23,7 @@ export default [
         starCount: 5,
         name: "Jack Davies",
         gender: "man",
+        color: "#E28700",
     },
     {
         id: 4,
@@ -29,6 +32,7 @@ export default [
         starCount: 5,
         name: "Kirsty Thomas",
         gender: "man",
+        color: "#1C6C76",
     },
     {
         id: 5,
@@ -37,6 +41,7 @@ export default [
         starCount: 5,
         name: "Tom Whitmill",
         gender: "man",
+        color: "#004BE2",
     },
     {
         id: 6,
@@ -45,6 +50,7 @@ export default [
         starCount: 5,
         name: "Julie Turnbull",
         gender: "woman",
+        color: "#8B00E2",
     },
     {
         id: 7,
@@ -53,5 +59,6 @@ export default [
         starCount: 5,
         name: "Sofia Boczek",
         gender: "woman",
+        color: "#E20093",
     },
 ];

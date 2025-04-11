@@ -8,7 +8,10 @@ export default function TestimoanialBox({ testimonial }) {
                 {"❝"}
             </span> */}
 
-            <div className="absolute right-7 top-3 w-fit p-1.5 bg-primary text-white rounded-full">
+            <div
+                className="absolute right-7 top-3 w-fit p-1.5 text-white rounded-full"
+                style={{ backgroundColor: testimonial.color }}
+            >
                 <PawPrint className="-rotate-45" size={24} />
             </div>
 

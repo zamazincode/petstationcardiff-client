@@ -1,10 +1,10 @@
 "use server";
 
-import { getAuthToken } from "@/data/services/get-token";
+import { getUserMeLoader } from "@/data/services/get-user-me-loader";
 import HeaderClient from "./HeaderClient";
 
 export default async function Header() {
-    const token = await getAuthToken();
+    const user = await getUserMeLoader();
 
-    return <HeaderClient isAuth={token ? true : false} />;
+    return <HeaderClient isAuth={user.ok ? true : false} />;
 }

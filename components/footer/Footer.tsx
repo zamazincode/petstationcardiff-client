@@ -118,20 +118,10 @@ export default function Footer() {
                             ))}
                         </ul>
 
-                        <ul className="space-y-1.5 mt-8">
+                        <ul className="space-y-2.5 mt-8">
                             <li className="font-semibold mb-4">Help</li>
 
                             <li>
-                                <Link
-                                    href="/contact"
-                                    className="flex items-center justify-center p-1 gap-1 border border-primary transition-colors rounded-md text-copy hover:bg-primary hover:text-white "
-                                >
-                                    <Headset />
-                                    Contact
-                                </Link>
-                            </li>
-
-                            <li className="">
                                 <Link
                                     href="https://m.me//PetStationCardiff"
                                     target="_blank"
@@ -151,6 +141,16 @@ export default function Footer() {
                                     Live Chat
                                 </Link>
                             </li>
+
+                            <li>
+                                <Link
+                                    href="/contact"
+                                    className="flex items-center justify-center p-1 gap-1 border border-primary transition-colors rounded-md text-copy hover:bg-primary hover:text-white "
+                                >
+                                    <Headset />
+                                    Contact
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -161,6 +161,12 @@ export default function Footer() {
                     "Copyright © 2024 Pet Station ( Sunny pet foods Ltd ) All Rights Reserved"
                 }
             </div>
+            {/* trusted site */}
+            {/* <script
+                type="text/javascript"
+                src="https://cdn.ywxi.net/js/1.js"
+                async
+            ></script> */}
         </footer>
     );
 }

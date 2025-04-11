@@ -25,7 +25,7 @@ export default function ProductsCarousel() {
                 setLoading(true);
 
                 const products = await getProducts(
-                    "/products?sort[0]=id:desc&filters[isFeatured]=true&pagination[start]=0&pagination[limit]=8&populate=*",
+                    "/products?filters[isFeatured]=true&filters[stockState][$eq]=in%20stock&populate=*",
                 );
                 setProducts(products);
                 setError(false);
@@ -39,6 +39,14 @@ export default function ProductsCarousel() {
 
         fetchProducts();
     }, []);
+
+    if (error || products?.length === 0) {
+        return (
+            <div className="text-red-500 flex items-center justify-center h-full">
+                Products not found
+            </div>
+        );
+    }
 
     return (
         <div className="relative mt-8 w-full">
