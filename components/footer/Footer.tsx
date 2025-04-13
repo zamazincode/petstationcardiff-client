@@ -12,14 +12,14 @@ export default function Footer() {
                 alt="Dog Photo"
                 width={354}
                 height={497}
-                className="absolute -top-78 right-0 z-10"
+                className="absolute -top-78 right-0 z-10 max-sm:w-[200px] max-sm:-top-44"
                 priority
             />
 
             <div className="container mb-16 flex items-stretch gap-8 max-md:flex-col">
                 {/* Box */}
                 <div className="max-w-[400px] p-8 w-fit rounded-xl bg-gradient-to-b from-[#DEBFFF]/10 to-[#DEBFFF]/20 border border-[#B74BFF]/15 ">
-                    <Logo className="mb-2" />
+                    <Logo variant="link" className="mb-2" />
                     {/* <p className="text-lg my-2 text-foreground/80">
                         Top quality food and products for the happiness & health
                         of your pet!

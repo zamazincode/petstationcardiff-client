@@ -11,36 +11,43 @@ import "swiper/css/autoplay";
 import ProductBox from "./product/ProductBox";
 import { useEffect, useState } from "react";
 import { Product } from "@/lib/constants/definitions";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 
 export default function ProductsCarousel() {
     const [products, setProducts] = useState<Product[] | null>(null);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchProducts = async () => {
-            try {
-                setLoading(true);
+            setLoading(true);
+            setError(null);
 
-                const products = await getProducts(
-                    "/products?filters[isFeatured]=true&filters[stockState][$eq]=in%20stock&populate=*",
-                );
-                setProducts(products);
-                setError(false);
-            } catch (error) {
-                console.log("Featured products error -> ", error);
-                setError(true);
-            } finally {
-                setLoading(false);
+            const { data, error } = await getProducts(
+                "?filters[isFeatured]=true&filters[stockState][$eq]=in%20stock&populate=*",
+            );
+
+            if (error) {
+                setError(error);
+            } else {
+                setProducts(data);
             }
+
+            setLoading(false);
         };
 
         fetchProducts();
     }, []);
 
-    if (error || products?.length === 0) {
+    if (error) {
+        return (
+            <div className="text-red-500 flex items-center justify-center h-full">
+                {error}
+            </div>
+        );
+    }
+
+    if (products?.length === 0) {
         return (
             <div className="text-red-500 flex items-center justify-center h-full">
                 Products not found

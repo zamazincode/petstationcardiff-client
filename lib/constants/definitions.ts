@@ -22,6 +22,11 @@ export type Brand = {
 export type Image = {
     id: number;
     url: string;
+    formats: {
+        thumbnail: {
+            url: string;
+        };
+    };
 };
 
 export type Product = {
@@ -42,8 +47,26 @@ export type Product = {
     weight: number;
 };
 
+export type BoxDeal = {
+    id: number;
+    name: string;
+    slug: string;
+    description: string;
+    images: Image[];
+    price: number;
+    salePrice: number;
+    maxQuantity: number;
+    products: Product[];
+};
+
 export type Campaign = {
     id: number;
     productSlug: string;
     image: Image;
+};
+
+export type StrapiResponse<T> = {
+    data: T[];
+    meta?: any;
+    error?: any;
 };

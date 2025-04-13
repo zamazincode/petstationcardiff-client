@@ -10,14 +10,11 @@ import ProductsCarousel from "@/components/products-carousel";
 import Categories from "@/components/homepage/categories";
 import Brands from "@/components/homepage/brands";
 import Testimonials from "@/components/homepage/testimonials";
-import MoveTop from "@/components/move-top";
 import Campaigns from "@/components/homepage/campaigns";
 
 export default function Home() {
     return (
         <>
-            <MoveTop />
-
             {/* Hero */}
             <section className="container rounded-md bg-[#EEF0FF] md:p-8 flex items-center justify-center mt-4">
                 <div className="flex-1">

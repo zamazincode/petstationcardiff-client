@@ -13,9 +13,9 @@ import {
 } from "@/components/ui/navigation-menu";
 import { LogIn, Package2, User2 } from "lucide-react";
 import SearchBar from "../SearchBar";
-import Logo from "../Logo";
 import Cart from "../Cart";
-import { LogoutButton } from "../LogoutButton";
+import { LogoutButton } from "../ui/logout-button";
+import Logo from "../Logo";
 
 export default function HeaderClient({ isAuth }: { isAuth: boolean }) {
     return (

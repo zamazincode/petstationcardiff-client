@@ -1,11 +1,48 @@
-import { Product } from "@/lib/constants/definitions";
+import { BoxDeal, Product, StrapiResponse } from "@/lib/constants/definitions";
 import { getStrapiURL } from "@/lib/utils";
 
-export async function getProducts(query: string): Promise<Product[] | null> {
-    const url = getStrapiURL() + "/api" + query;
+export async function getProducts(
+    query: string,
+): Promise<StrapiResponse<Product>> {
+    const url = getStrapiURL() + "/api/products" + query;
 
-    const response = await fetch(url);
-    const data = await response.json();
+    try {
+        const response = await fetch(url);
 
-    return data.data;
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "An error occurred");
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error: any) {
+        return {
+            data: [],
+            error: error.message || "Unknown error",
+        };
+    }
+}
+
+export async function getBoxDeals(
+    query: string,
+): Promise<StrapiResponse<BoxDeal>> {
+    const url = getStrapiURL() + "/api/products" + query;
+
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "An error occurred");
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error: any) {
+        return {
+            data: [],
+            error: error.message || "Unknown error",
+        };
+    }
 }
