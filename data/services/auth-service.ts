@@ -33,7 +33,14 @@ export async function registerUserService(userData: RegisterUserProps) {
 
         return response.json();
     } catch (error) {
+        console.log("***************************************");
         console.error("Registration Service Error:", error);
+        console.log("***************************************");
+        return {
+            error: {
+                message: "An error occured!",
+            },
+        };
     }
 }
 
@@ -51,8 +58,14 @@ export async function loginUserService(userData: LoginUserProps) {
 
         return response.json();
     } catch (error) {
+        console.log("***************************************");
         console.error("Login Service Error:", error);
-        //throw error;
+        console.log("***************************************");
+        return {
+            error: {
+                message: "An error occured!",
+            },
+        };
     }
 }
 
@@ -71,6 +84,11 @@ export async function getResetPasswordToken(email: string) {
         return response.json();
     } catch (error) {
         console.error("An error occurred::", error);
+        return {
+            error: {
+                message: "An error occured!",
+            },
+        };
     }
 }
 
@@ -89,5 +107,10 @@ export async function resetPassword(data: ResetPasswordProps) {
         return response.json();
     } catch (error) {
         console.error("An error occurred:", error);
+        return {
+            error: {
+                message: "An error occured!",
+            },
+        };
     }
 }

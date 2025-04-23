@@ -24,7 +24,7 @@ export default function ProductsCarousel() {
             setError(null);
 
             const { data, error } = await getProducts(
-                "?filters[isFeatured]=true&filters[stockState][$eq]=in%20stock&populate=*",
+                "?filters[isFeatured]=true&filters[stockState][$eq]=in%20stock&pagination[start]=0&pagination[limit]=8&populate=*",
             );
 
             if (error) {
@@ -42,7 +42,7 @@ export default function ProductsCarousel() {
     if (error) {
         return (
             <div className="text-red-500 flex items-center justify-center h-full">
-                {error}
+                An error occured
             </div>
         );
     }
@@ -69,7 +69,7 @@ export default function ProductsCarousel() {
                     disableOnInteraction: false,
                 }}
                 spaceBetween={30}
-                slidesPerView={1}
+                slidesPerView={2}
                 breakpoints={{
                     540: {
                         slidesPerView: 2,

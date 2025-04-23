@@ -1,14 +1,14 @@
-import { Product } from "@/lib/constants/definitions";
+import { BoxDeal } from "@/lib/constants/definitions";
 import { cn, getStrapiURL } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function ProductBox({
+export default function DealBox({
     data,
     className,
     isColored = false,
 }: {
-    data: Product;
+    data: BoxDeal;
     className?: string;
     isColored?: boolean;
 }) {
@@ -54,7 +54,7 @@ export default function ProductBox({
                 <div>
                     {data?.category && (
                         <Link
-                            href={data.category?.slug || "#"}
+                            href="/category/box-deal"
                             className="text-xs sm:text-sm text-gray-600 font-light hover:text-gray-900 transition-colors"
                         >
                             {data.category?.name}

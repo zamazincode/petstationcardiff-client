@@ -14,9 +14,10 @@ export default function ProductList({ loading, products }: ProductListProps) {
         <div className="grid grid-cols-2 max-xs:grid-cols-1 max-sm:place-content-center md:grid-cols-3 lg:grid-cols-4 gap-6  justify-between items-stretch">
             {products?.map((product) => (
                 <ProductBox
-                    className="p-2 bg-white shadow-sm rounded-2xl  mx-auto w-full"
+                    className="bg-white border rounded-2xl  mx-auto w-full"
                     data={product}
                     key={product.id}
+                    isColored
                 />
             ))}
         </div>

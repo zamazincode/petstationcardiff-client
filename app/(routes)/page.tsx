@@ -78,6 +78,7 @@ export default function Home() {
                 </div>
                 <div className="flex-[3] relative overflow-hidden">
                     <div className="h-full w-1/5 absolute right-0 top-0 bg-gradient-to-r from-[rgba(255,255,255,0)] to-99% to-[#E1F2F9] pointer-events-none  z-10" />
+                    <div className="h-full w-1/5 absolute -left-8 top-0 bg-gradient-to-l from-[rgba(255,255,255,0)] to-99% to-[#E1F2F9] pointer-events-none  z-10" />
                     <ProductsCarousel />
                 </div>
             </section>

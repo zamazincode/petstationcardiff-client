@@ -16,6 +16,7 @@ export default function SearchBar() {
     const handleSearch = () => {
         if (value.trim() !== "") {
             router.push(`/products?search=${encodeURIComponent(value)}`);
+            setValue("");
         }
     };
 

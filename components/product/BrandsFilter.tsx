@@ -40,17 +40,17 @@ export default function BrandFilter() {
                 {brands?.map((brand) => (
                     <button
                         key={brand.id}
-                        className="flex items-center justify-center px-2 py-1.5 bg-primary/10 rounded-full cursor-pointer hover:bg-primary/20 transition-all gap-2"
+                        className="flex items-center justify-center px-4 py-1.5 bg-primary/10 rounded-full cursor-pointer hover:bg-primary/20 transition-all gap-2"
                         onClick={() => console.log(brand.slug)}
                     >
                         <Image
                             src={getStrapiURL() + brand?.logo?.url || ""}
                             alt={brand?.name}
-                            width={40}
-                            height={40}
+                            width={60}
+                            height={60}
                             className="object-contain"
                         />
-                        {brand?.name}
+                        {/* {brand?.name} */}
                     </button>
                 ))}
             </div>

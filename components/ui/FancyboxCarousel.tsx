@@ -37,7 +37,7 @@ function FancyboxCarousel(props: PropsWithChildren<Props>) {
     }, []);
 
     return (
-        <div className="w-full" ref={containerRef}>
+        <div className="w-full border rounded-xl" ref={containerRef}>
             {props.children}
         </div>
     );

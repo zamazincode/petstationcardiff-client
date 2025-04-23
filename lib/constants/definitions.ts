@@ -38,12 +38,13 @@ export type Product = {
     salePrice: number;
     isFeatured: boolean;
     category: Category;
-    brand: Brand[];
+    brand: Brand;
     pets: Pet[];
     images: Image[];
     quantity: number;
     barcode: string;
     trackStock: boolean;
+    stockState: "in stock" | "out of stock";
     weight: number;
 };
 

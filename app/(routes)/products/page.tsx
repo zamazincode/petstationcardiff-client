@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ProductList from "@/components/product/ProductsList";
 import LinkButton from "@/components/ui/LinkButton";
 import BrandFilter from "@/components/product/BrandsFilter";
+import { RefreshCcw } from "lucide-react";
 
 export default function ProductsPage() {
     const searchParams = useSearchParams();
@@ -30,7 +31,7 @@ export default function ProductsPage() {
             setError(null);
 
             let query = "?populate=*&sort[0]=id:desc";
-            //&filters[name][$containsi]=test
+            //&filters[name][$contains]=test
 
             try {
                 const { data, error } = await getProducts(query);
@@ -52,9 +53,12 @@ export default function ProductsPage() {
 
     if (error) {
         return (
-            <div className="text-red-500 flex items-center justify-center h-full">
-                {error}
-            </div>
+            <section className="container pt-8 flex flex-col gap-4 items-center justify-center">
+                <div className="text-red-500">An error occured</div>
+                <LinkButton href="/products">
+                    Retry <RefreshCcw />{" "}
+                </LinkButton>
+            </section>
         );
     }
 

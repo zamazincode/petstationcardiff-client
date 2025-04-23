@@ -33,6 +33,14 @@ export default function Brands() {
         fetchBrands();
     }, []);
 
+    if (error) {
+        return (
+            <div className="text-red-500 text-lg container">
+                An errror occured
+            </div>
+        );
+    }
+
     return (
         <Marquee pauseOnHover autoFill>
             {loading ? (
