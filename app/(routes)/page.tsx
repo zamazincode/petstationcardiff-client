@@ -1,3 +1,5 @@
+"use client";
+
 import LinkButton from "@/components/ui/LinkButton";
 import {
     ChevronLeft,
@@ -11,8 +13,25 @@ import Categories from "@/components/homepage/categories";
 import Brands from "@/components/homepage/brands";
 import Testimonials from "@/components/homepage/testimonials";
 import Campaigns from "@/components/homepage/campaigns";
+import { useDevice } from "@/lib/hooks/useDevice";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import LoadingAnimation from "@/components/ui/loading";
 
 export default function Home() {
+    const { ready, isMobile, isTablet } = useDevice();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (ready && (isMobile || isTablet)) {
+            router.push("/products");
+        }
+    }, [ready, isMobile, isTablet, router]);
+
+    if (!ready) return null;
+
+    if (isMobile || isTablet) return <LoadingAnimation />;
+
     return (
         <>
             {/* Hero */}

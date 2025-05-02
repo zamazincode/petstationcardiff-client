@@ -1,3 +1,9 @@
+import LoadingAnimation from "@/components/ui/loading";
+
 export default function Loading() {
-    return <div className="bg-red-600 w-full h-screen">loading</div>;
+    return (
+        <div className="w-full h-screen bg-white">
+            <LoadingAnimation />
+        </div>
+    );
 }

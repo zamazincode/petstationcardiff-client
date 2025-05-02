@@ -1,17 +1,16 @@
 "use client";
 
-import { Product } from "@/lib/constants/definitions";
-import { Skeleton } from "../ui/skeleton";
+import { BoxDeal, Product } from "@/lib/constants/definitions";
 import ProductBox from "./ProductBox";
 
+type MixedItem = Product | BoxDeal;
 type ProductListProps = {
-    loading: boolean;
-    products: Product[] | null;
+    products: MixedItem[] | null;
 };
 
-export default function ProductList({ loading, products }: ProductListProps) {
+export default function ProductList({ products }: ProductListProps) {
     return (
-        <div className="grid grid-cols-2 max-xs:grid-cols-1 max-sm:place-content-center md:grid-cols-3 lg:grid-cols-4 gap-6  justify-between items-stretch">
+        <div className="grid grid-cols-2 max-sm:place-content-center md:grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-6 justify-between items-stretch">
             {products?.map((product) => (
                 <ProductBox
                     className="bg-white border rounded-2xl  mx-auto w-full"

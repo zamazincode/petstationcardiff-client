@@ -2,16 +2,15 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getProducts } from "@/data/services/get-products";
-import { Product } from "@/lib/constants/definitions";
-import ProductBox from "@/components/product/ProductBox";
-import { Skeleton } from "@/components/ui/skeleton";
+import { getProducts, getBoxDeals } from "@/data/services/get-products";
+import { Product, BoxDeal } from "@/lib/constants/definitions";
 import ProductList from "@/components/product/ProductsList";
 import LinkButton from "@/components/ui/LinkButton";
 import BrandFilter from "@/components/product/BrandsFilter";
 import { RefreshCcw } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function ProductsPage() {
+export default function BoxDealsPage() {
     const searchParams = useSearchParams();
 
     const [queries, setQueries] = useState({
@@ -21,42 +20,42 @@ export default function ProductsPage() {
         pet: searchParams.get("pet") || "",
     });
 
-    const [products, setProducts] = useState<Product[] | null>(null);
+    const [items, setItems] = useState<Product[] | BoxDeal[] | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchData = async () => {
             setLoading(true);
             setError(null);
 
             let query = "?populate=*&sort[0]=id:desc";
-            //&filters[name][$contains]=test
 
             try {
-                const { data, error } = await getProducts(query);
-                if (error) {
-                    setError(error);
-                    setLoading(false);
+                const boxdealsRes = await getBoxDeals(query);
+
+                if (boxdealsRes.error) {
+                    setError(boxdealsRes.error);
                     return;
                 }
-                setProducts(data);
+
+                setItems(boxdealsRes.data);
             } catch (err) {
-                setError("Failed to fetch products. Please try again later.");
+                setError("Failed to fetch data.");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchProducts();
+        fetchData();
     }, [queries]);
 
     if (error) {
         return (
             <section className="container pt-8 flex flex-col gap-4 items-center justify-center">
-                <div className="text-red-500">An error occured</div>
+                <div className="text-red-500">An error occurred</div>
                 <LinkButton href="/products">
-                    Retry <RefreshCcw />{" "}
+                    Retry <RefreshCcw />
                 </LinkButton>
             </section>
         );
@@ -64,14 +63,13 @@ export default function ProductsPage() {
 
     return (
         <section className="container pt-8 sm:pb-72 pb-40">
-            {/* Filters */}
             <div>
                 <BrandFilter />
             </div>
 
-            {/* Products List */}
+            {/* Loading skeleton */}
             {loading && (
-                <div className=" conteiner grid grid-cols-2 max-xs:grid-cols-1 max-sm:place-content-center md:grid-cols-3 lg:grid-cols-4 gap-6  justify-between items-stretch">
+                <div className="grid grid-cols-2 max-xs:grid-cols-1 max-sm:place-content-center md:grid-cols-3 lg:grid-cols-4 gap-6 justify-between items-stretch">
                     {[...Array(10).keys()].map((i) => (
                         <div
                             key={i}
@@ -84,15 +82,17 @@ export default function ProductsPage() {
                 </div>
             )}
 
-            {!products?.length ? (
-                <div className="flex flex-col gap-4 items-center justify-center">
-                    <div className="text-red-500 flex items-center justify-center h-full">
-                        No products found.
-                    </div>
-                    <LinkButton href="/products">Clear Filters</LinkButton>
-                </div>
+            {!loading && items && items.length > 0 ? (
+                <ProductList loading={false} products={items} />
             ) : (
-                <ProductList loading={loading} products={products} />
+                !loading && (
+                    <div className="flex flex-col gap-4 items-center justify-center">
+                        <div className="text-red-500 flex items-center justify-center h-full">
+                            No items found.
+                        </div>
+                        <LinkButton href="/products">Clear Filters</LinkButton>
+                    </div>
+                )
             )}
         </section>
     );

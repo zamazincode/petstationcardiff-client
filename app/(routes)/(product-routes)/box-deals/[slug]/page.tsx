@@ -1,15 +1,15 @@
 "use client";
 
 // #region dependency import
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getProducts } from "@/data/services/get-products";
+import { getBoxDeals } from "@/data/services/get-products";
 import Link from "next/link";
 import Image from "next/image";
 import Markdown from "react-markdown";
 import Fancybox from "@/components/ui/Fancybox";
 import FancyboxCarousel from "@/components/ui/FancyboxCarousel";
-import { Product } from "@/lib/constants/definitions";
+import { BoxDeal, Product } from "@/lib/constants/definitions";
 import { getStrapiURL } from "@/lib/utils";
 
 import {
@@ -37,29 +37,121 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import LinkButton from "@/components/ui/LinkButton";
 import RelatedProducts from "@/components/product/RelatedProducts";
+import { toast } from "sonner";
 
 // #endregion
+
+type BoxDealProductProps = {
+    product: Product;
+    totalQuantity: number;
+    maxQuantity: number;
+    setTotalQuantiy: Dispatch<SetStateAction<number>>;
+    setSelectedProducts: Dispatch<SetStateAction<{ [slug: string]: number }>>;
+};
+const BoxDealProduct = ({
+    product,
+    totalQuantity,
+    setTotalQuantiy,
+    maxQuantity,
+    setSelectedProducts,
+}: BoxDealProductProps) => {
+    const IMAGE_URL = product.images
+        ? getStrapiURL() + product.images[0].url
+        : "/placeholder-image.png";
+
+    const [quantity, setQuantity] = useState(0);
+
+    const updateQuantity = (change: number) => {
+        const newQuantity = quantity + change;
+
+        if (
+            product?.trackStock &&
+            product?.quantity &&
+            newQuantity > product.quantity
+        )
+            return;
+        if (change > 0 && totalQuantity >= maxQuantity) {
+            toast.warning(`You can select maximum ${maxQuantity} products.`);
+            return;
+        }
+        if (newQuantity < 1) return;
+
+        setQuantity(newQuantity);
+        setTotalQuantiy((prev) => prev + change);
+        setSelectedProducts((prev) => ({
+            ...prev,
+            [product.slug]: newQuantity,
+        }));
+    };
+
+    const incrementQuantity = () => updateQuantity(1);
+    const decrementQuantity = () => updateQuantity(-1);
+
+    return (
+        <div className="flex items-center h-24 border rounded-lg bg-[#e3e5fa] w-full justify-between px-4 py-2">
+            <div className="flex items-center gap-4">
+                <div className="">
+                    <Image
+                        src={IMAGE_URL}
+                        alt={product.name}
+                        width={60}
+                        height={60}
+                    />
+                </div>
+                <h4 className="text-lg">{product.name}</h4>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex items-center h-12 border rounded-full w-fit bg-white">
+                <button
+                    onClick={decrementQuantity}
+                    className="flex items-center justify-center h-full px-3 text-gray-600 cursor-pointer hover:text-primary transition-colors disabled:text-gray-200"
+                    disabled={quantity <= 1}
+                >
+                    <MinusCircle size={30} />
+                </button>
+                <span className="flex items-center justify-center h-full w-12 text-center font-medium">
+                    {quantity}
+                </span>
+                <button
+                    onClick={incrementQuantity}
+                    className="flex items-center justify-center h-full px-3 text-gray-600 cursor-pointer hover:text-primary transition-colors disabled:text-gray-200"
+                    disabled={
+                        product.stockState === "out of stock" ||
+                        totalQuantity >= maxQuantity
+                    }
+                >
+                    <PlusCircle size={30} />
+                </button>
+            </div>
+        </div>
+    );
+};
 
 export default function ProductDetailsPage() {
     const params = useParams();
 
-    const [data, setData] = useState<Product | null>(null);
+    const [data, setData] = useState<BoxDeal | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
-    const [quantity, setQuantity] = useState(1);
     const [addingToCart, setAddingToCart] = useState(false);
     const [addedToCart, setAddedToCart] = useState(false);
+
+    const [selectedProducts, setSelectedProducts] = useState<{
+        [slug: string]: number;
+    }>({});
+    const [totalSelected, setTotalSelected] = useState(0);
 
     // fetch data
     useEffect(() => {
         const fetchProduct = async () => {
-            const query = `?filters[slug][$eq]=${params.slug}&populate[category][populate]=image&populate[pets][populate]=image&populate[brand][populate]=logo&populate[box_deals]=true&populate[images]=true`;
+            const query = `?filters[slug][$eq]=${params.slug}&populate[category][populate]=image&populate[pets][populate]=image&populate[brand][populate]=logo&populate[products][populate]=*&populate[images]=true`;
 
             setLoading(true);
             setError(null);
 
-            const { data: _data, error } = await getProducts(query);
+            const { data: _data, error } = await getBoxDeals(query);
 
             if (!_data.length) {
                 setError("Product not found!");
@@ -69,6 +161,12 @@ export default function ProductDetailsPage() {
                 setError(error);
             } else {
                 setData(_data[0]);
+                // tüm productlar 0 adet
+                const initialProducts = {};
+                _data[0].products.forEach((product) => {
+                    initialProducts[product.slug] = 0;
+                });
+                setSelectedProducts(initialProducts);
             }
 
             setLoading(false);
@@ -77,21 +175,9 @@ export default function ProductDetailsPage() {
         fetchProduct();
     }, [params.slug]);
 
-    const incrementQuantity = () => {
-        if (data?.trackStock && data?.quantity && quantity >= data.quantity) {
-            return;
-        }
-        setQuantity((prev) => prev + 1);
-    };
-
-    const decrementQuantity = () => {
-        if (quantity > 1) {
-            setQuantity((prev) => prev - 1);
-        }
-    };
-
     const handleAddToCart = () => {
         setAddingToCart(true);
+        console.log(selectedProducts);
 
         // Burada sepete ekleme mantığınızı uygulayın
         setTimeout(() => {
@@ -162,18 +248,6 @@ export default function ProductDetailsPage() {
 
     return (
         <>
-            <Link
-                href=""
-                className="w-10 h-10 p-2 flex items-center justify-center absolute top-4 left-4 border border-primary rounded-full md:hidden"
-            >
-                <Image
-                    src={"/arrow.svg"}
-                    alt="arrow"
-                    width={16}
-                    height={16}
-                    className="object-cover"
-                />
-            </Link>
             <section className="container sm:pb-32 pb-16 max-sm:mt-12">
                 {/* Breadcrumb */}
                 <div className="mb-6">
@@ -193,10 +267,7 @@ export default function ProductDetailsPage() {
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>
                                         <BreadcrumbLink
-                                            href={
-                                                "/category/" +
-                                                data?.category?.slug
-                                            }
+                                            href={data?.category?.slug}
                                         >
                                             {data?.category?.name}
                                         </BreadcrumbLink>
@@ -215,7 +286,7 @@ export default function ProductDetailsPage() {
 
                 {data && (
                     <>
-                        <div className="flex lg:flex-row flex-col gap-4 md:gap-8">
+                        <div className="flex lg:flex-row flex-col gap-4 md:gap-8 items-start">
                             {/* Images */}
                             <div className="flex-1 overflow-hidden">
                                 {data?.images?.length ? (
@@ -315,132 +386,110 @@ export default function ProductDetailsPage() {
                                         </Link>
                                     )}
 
-                                    {/* Title and Stock State */}
-                                    <div>
-                                        <h1 className="text-3xl font-bold text-gray-900">
-                                            {data.name}
-                                        </h1>
+                                    {/* Title */}
+                                    <h1 className="text-3xl font-bold text-gray-900">
+                                        {data.name}
+                                    </h1>
 
-                                        <div className="mt-2 flex items-center gap-2 uppercase text-white">
-                                            {data.trackStock && (
-                                                <Badge
-                                                    className={
-                                                        data.stockState ===
-                                                        "in stock"
-                                                            ? "bg-green-600 font-semibold rounded-full py-1"
-                                                            : "bg-red-500 font-semibold rounded-full py-1"
-                                                    }
+                                    {/* Category and Pet */}
+                                    <div className="flex gap-2.5 flex-wrap items-center">
+                                        <h6 className="font-medium">
+                                            Category:
+                                        </h6>
+                                        {data.category && (
+                                            <Link
+                                                className="capitalize flex gap-2 rounded-full border px-4 py-2 items-center justify-center hover:bg-primary/10 transition-colors"
+                                                key={data.category?.id}
+                                                href={`/products?pet=${data.category?.slug}`}
+                                            >
+                                                {data.category.image && (
+                                                    <Image
+                                                        src={
+                                                            getStrapiURL() +
+                                                            data?.category
+                                                                ?.image?.url
+                                                        }
+                                                        alt={
+                                                            data.category?.name
+                                                        }
+                                                        width={24}
+                                                        height={24}
+                                                        className=""
+                                                    />
+                                                )}
+                                                {data.category?.name}
+                                            </Link>
+                                        )}
+                                        {data.pets &&
+                                            data.pets.length > 0 &&
+                                            data.pets.map((pet) => (
+                                                <Link
+                                                    className="uppercase flex gap-2 rounded-full border px-4 py-2 items-center justify-center hover:bg-primary/10 transition-colors"
+                                                    key={pet?.id}
+                                                    href={`/products?pet=${pet?.slug}`}
                                                 >
-                                                    {data.stockState}
-                                                </Badge>
-                                            )}
-
-                                            {data.barcode && (
-                                                <span className="text-sm text-gray-500">
-                                                    <span className="font-medium">
-                                                        SKU:
-                                                    </span>{" "}
-                                                    {data.barcode}
-                                                </span>
-                                            )}
-                                        </div>
+                                                    <Image
+                                                        src={
+                                                            getStrapiURL() +
+                                                            pet?.image?.url
+                                                        }
+                                                        alt={pet?.name}
+                                                        width={24}
+                                                        height={24}
+                                                        className=""
+                                                    />
+                                                    {pet?.name}
+                                                </Link>
+                                            ))}
                                     </div>
 
-                                    <div className="flex items-center gap-4 flex-wrap md:flex-col md:items-start">
-                                        {/* Category */}
-                                        {data.category && (
-                                            <div className="flex gap-2">
-                                                Category:
-                                                <Link
-                                                    href={`/products?category=${data?.category?.slug}`}
-                                                >
-                                                    <Badge
-                                                        variant="secondary"
-                                                        className="hover:bg-primary/10  transition-colors"
-                                                    >
-                                                        {data?.category?.name}
-                                                    </Badge>
-                                                </Link>
-                                            </div>
-                                        )}
-
-                                        {/* Pets */}
-                                        {data.pets && data.pets.length > 0 && (
-                                            <div className="flex items-center flex-wrap gap-2">
-                                                {data.pets.map((pet) => (
-                                                    <Link
-                                                        className="uppercase flex gap-2 rounded-full border p-2 items-center justify-center hover:bg-primary/10 transition-colors"
-                                                        key={pet.id}
-                                                        href={`/products?pet=${pet.slug}`}
-                                                    >
-                                                        <Image
-                                                            src={
-                                                                getStrapiURL() +
-                                                                pet?.image?.url
-                                                            }
-                                                            alt={pet.name}
-                                                            width={24}
-                                                            height={24}
-                                                            className=""
-                                                        />
-                                                        {pet.name}
-                                                    </Link>
-                                                ))}
-                                            </div>
-                                        )}
+                                    {/* Product */}
+                                    <h2 className="text-lg !mb-1.5">
+                                        Please select{" "}
+                                        <span className="text-primary">
+                                            {data.maxQuantity}
+                                        </span>{" "}
+                                        product
+                                    </h2>
+                                    <div className="flex flex-col gap-2 overflow-auto max-h-[260px] p-4 rounded-2xl border">
+                                        {data?.products?.map((product) => (
+                                            <BoxDealProduct
+                                                product={product}
+                                                totalQuantity={totalSelected}
+                                                setTotalQuantiy={
+                                                    setTotalSelected
+                                                }
+                                                maxQuantity={data.maxQuantity}
+                                                setSelectedProducts={
+                                                    setSelectedProducts
+                                                }
+                                                key={product.id}
+                                            />
+                                        ))}
                                     </div>
 
                                     {/* Price */}
-                                    <div className="flex items-end gap-3">
-                                        <div>
-                                            <span className="text-3xl font-bold text-primary">
-                                                £
-                                                {isOnSale
-                                                    ? data.salePrice
-                                                    : data.price}
-                                            </span>
-                                            {isOnSale && (
-                                                <span className="ml-2 text-xl line-through text-gray-500">
-                                                    £{data.price}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Buttons */}
                                     <div className="md:py-4">
                                         <div className="flex flex-row gap-4">
-                                            <div className="flex items-center h-12 border rounded-full w-fit">
-                                                <button
-                                                    onClick={decrementQuantity}
-                                                    className="flex items-center justify-center h-full px-3 text-gray-600 cursor-pointer hover:text-primary transition-colors disabled:text-gray-200"
-                                                    disabled={quantity <= 1}
-                                                >
-                                                    <MinusCircle size={30} />
-                                                </button>
-                                                <span className="flex items-center justify-center h-full w-12 text-center font-medium">
-                                                    {quantity}
-                                                </span>
-                                                <button
-                                                    onClick={incrementQuantity}
-                                                    className="flex items-center justify-center h-full px-3 text-gray-600 cursor-pointer hover:text-primary transition-colors disabled:text-gray-200"
-                                                    disabled={
-                                                        data.stockState ===
-                                                        "out of stock"
-                                                    }
-                                                >
-                                                    <PlusCircle size={30} />
-                                                </button>
+                                            <div className="flex items-end gap-3">
+                                                <div>
+                                                    <span className="text-3xl font-bold text-primary">
+                                                        £
+                                                        {isOnSale
+                                                            ? data.salePrice
+                                                            : data.price}
+                                                    </span>
+                                                    {isOnSale && (
+                                                        <span className="ml-2 text-xl line-through text-gray-500">
+                                                            £{data.price}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
 
+                                            {/* Add to Cart Button */}
                                             <Button
                                                 className="flex-1 h-12 gap-2 text-base font-medium rounded-full"
-                                                disabled={
-                                                    addingToCart ||
-                                                    (data.trackStock &&
-                                                        data.stockState ===
-                                                            "out of stock")
-                                                }
                                                 onClick={handleAddToCart}
                                             >
                                                 {addingToCart ? (
@@ -501,19 +550,13 @@ export default function ProductDetailsPage() {
 
                         {/* Details */}
                         <div className="mt-16">
-                            <Tabs defaultValue="description" className="w-full">
-                                <TabsList className="h-full rounded-full grid grid-cols-2 mb-6 py-0 cursor-pointer bg-[#E3E5FA]">
+                            <Tabs defaultValue="description">
+                                <TabsList className="h-full rounded-full w-fit px-0 mb-6 py-0 cursor-pointer bg-[#E3E5FA]">
                                     <TabsTrigger
                                         value="description"
                                         className="py-4 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-copy-light font-semibold px-12"
                                     >
                                         Description
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="details"
-                                        className="py-4 rounded-full data-[state=active]:bg-primary data-[state=active]:text-white text-copy-light font-semibold px-12"
-                                    >
-                                        Details
                                     </TabsTrigger>
                                 </TabsList>
                                 <TabsContent
@@ -524,88 +567,26 @@ export default function ProductDetailsPage() {
                                         <Markdown>{data.description}</Markdown>
                                     </div>
                                 </TabsContent>
-                                <TabsContent
-                                    value="details"
-                                    className="p-6 border rounded-lg bg-[#F9FAFF] border-[#E3E5FA]"
-                                >
-                                    <div className=" max-w-none">
-                                        <h3 className="text-lg font-semibold mb-4">
-                                            Details
-                                        </h3>
-                                        <div className="grid grid-cols-1 gap-y-2">
-                                            {data.weight && (
-                                                <div className="flex justify-between py-2">
-                                                    <span className="font-medium">
-                                                        Weight
-                                                    </span>
-                                                    <span>{data.weight}</span>
-                                                </div>
-                                            )}
-                                            {data.brand && (
-                                                <div className="flex justify-between py-2 border-t">
-                                                    <span className="font-medium">
-                                                        Brand
-                                                    </span>
-                                                    <Link
-                                                        className="hover:text-primary transition-colors"
-                                                        href={
-                                                            "/products?brand=" +
-                                                            data.brand.slug
-                                                        }
-                                                    >
-                                                        {data.brand.name}
-                                                    </Link>
-                                                </div>
-                                            )}
-                                            <div className="flex justify-between py-2 border-t">
-                                                <span className="font-medium">
-                                                    Category
-                                                </span>
-                                                <Link
-                                                    className="hover:text-primary transition-colors"
-                                                    href={
-                                                        "/category/" +
-                                                        data.category.slug
-                                                    }
-                                                >
-                                                    {data.category.name}
-                                                </Link>
-                                            </div>
-                                            {data.trackStock && (
-                                                <div className="flex justify-between py-2 border-t">
-                                                    <span className="font-medium">
-                                                        Stock Status
-                                                    </span>
-                                                    <span
-                                                        className={
-                                                            data.stockState ===
-                                                            "in stock"
-                                                                ? "text-green-600 capitalize"
-                                                                : "text-red-600 capitalize"
-                                                        }
-                                                    >
-                                                        {data.stockState}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </TabsContent>
                             </Tabs>
                         </div>
                     </>
                 )}
                 {/* Related Products */}
-                <div className="mt-12">
-                    <h2 className="mb-4 text-2xl font-sour-gummy font-medium">
-                        Related Products
-                    </h2>
-                    <RelatedProducts rel={data?.category.slug || ""} />
-                    <LinkButton href="/products" className="mx-auto mt-6 group">
-                        See All
-                        <MoveRight className="group-hover:ml-2 transition-all" />
-                    </LinkButton>
-                </div>
+                {!loading && (
+                    <div className="mt-12">
+                        <h2 className="mb-4 text-2xl font-sour-gummy font-medium">
+                            Related Products
+                        </h2>
+                        <RelatedProducts rel={data?.category?.slug || ""} />
+                        <LinkButton
+                            href="/products"
+                            className="mx-auto mt-6 group"
+                        >
+                            See All
+                            <MoveRight className="group-hover:ml-2 transition-all" />
+                        </LinkButton>
+                    </div>
+                )}
             </section>
         </>
     );

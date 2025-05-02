@@ -1,42 +1,51 @@
 const headerLinks = [
     {
         title: "All Brands",
-        href: "/category/all-brands",
+        href: "/products/all-brands",
     },
     {
         title: "Raw Food",
-        href: "/category/raw",
+        href: "/products?category=raw-food",
     },
     {
         title: "Dry Food",
-        href: "/category/dry",
+        href: "/products?category=dry-food",
     },
     {
         title: "Raw Box Deals",
-        href: "/category/box-deals",
+        href: "/products?category=raw-box-deals",
     },
     {
         title: "Treats",
-        href: "/category/treats",
+        links: [
+            {
+                title: "Raw Treats",
+                href: "/products?category=raw-treats",
+            },
+            {
+                title: "Dry Treats",
+                href: "/products?category=dry-treats",
+            },
+        ],
     },
     {
         title: "More",
         links: [
             {
                 title: "Supplement",
-                href: "/category/supplement",
+                href: "/products?category=supplement",
             },
             {
                 title: "Flea, Ticks and Wormers",
-                href: "/category/flea-ticks-wormers",
+                href: "/products?category=flea-ticks-and-wormers",
             },
             {
                 title: "Accessories",
-                href: "/category/accessories",
+                href: "/products?category=accessories",
             },
             {
                 title: "Toys",
-                href: "/category/toys",
+                href: "/products?category=toys",
             },
         ],
     },
@@ -46,46 +55,46 @@ const footerLinks = {
     categories: [
         {
             title: "Raw Food",
-            href: "/category/raw",
+            href: "/products?category=raw-food",
         },
         {
             title: "Dry Food",
-            href: "/category/dry",
+            href: "/products?category=dry-food",
         },
         {
             title: "Raw Box Deals",
-            href: "/category/box-deals",
+            href: "/box-deals",
         },
         {
             title: "Raw Treats",
-            href: "/category/raw-treats",
+            href: "/products?category=raw-treats",
         },
         {
             title: "Dry Treats",
-            href: "/category/dry-treats",
+            href: "/products?category=dry-treats",
         },
         {
             title: "Supplement",
-            href: "/category/supplement",
+            href: "/products?category=supplement",
         },
         {
             title: "Flea, Ticks and Wormers",
-            href: "/category/flea-ticks-wormers",
+            href: "/products?category=flea-ticks-and-wormers",
         },
         {
             title: "Accessories",
-            href: "/category/accessories",
+            href: "/products?category=accessories",
         },
         {
             title: "Toys",
-            href: "/category/toys",
+            href: "/products?category=toys",
         },
     ],
 
     information: [
         {
             title: "Track Orders",
-            href: "/",
+            href: "https://www.parcelforce.com/track-trace",
             external: true,
         },
         {

@@ -58,6 +58,9 @@ export type BoxDeal = {
     salePrice: number;
     maxQuantity: number;
     products: Product[];
+    category: Category;
+    brand: Brand;
+    pets: Pet[];
 };
 
 export type Campaign = {

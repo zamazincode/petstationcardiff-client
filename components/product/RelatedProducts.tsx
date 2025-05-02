@@ -14,9 +14,12 @@ export default function RelatedProducts({ rel }: { rel: string }) {
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
-            const { data, error } = await getProducts(
-                `?populate=*&filters[category][slug][$eq]=${rel}&pagination[start]=0&pagination[limit]=4`,
-            );
+
+            const query =
+                rel && rel !== "raw-box-deals"
+                    ? `?populate=*&filters[category][slug][$eq]=${rel}&pagination[start]=0&pagination[limit]=4`
+                    : "?populate=*&pagination[start]=0&pagination[limit]=4";
+            const { data, error } = await getProducts(query);
             if (error) {
                 setError(error);
                 setLoading(false);

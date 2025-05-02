@@ -27,7 +27,7 @@ export async function getProducts(
 export async function getBoxDeals(
     query: string,
 ): Promise<StrapiResponse<BoxDeal>> {
-    const url = getStrapiURL() + "/api/products" + query;
+    const url = getStrapiURL() + "/api/box-deals" + query;
 
     try {
         const response = await fetch(url);

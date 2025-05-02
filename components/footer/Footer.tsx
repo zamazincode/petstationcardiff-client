@@ -12,7 +12,8 @@ export default function Footer() {
                 alt="Dog Photo"
                 width={354}
                 height={497}
-                className="absolute -top-78 right-0 z-10 max-sm:w-[200px] max-sm:-top-44"
+                draggable={false}
+                className="absolute -top-78 right-0 z-10 max-sm:w-[200px] max-sm:-top-44 "
                 priority
             />
 

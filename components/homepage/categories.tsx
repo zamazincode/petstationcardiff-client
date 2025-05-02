@@ -36,7 +36,7 @@ export default function Categories() {
     return (
         <div>
             {/* Pets */}
-            <div className="flex items-stretch gap-6 flex-wrap">
+            <div className="flex items-stretch gap-2.5 flex-wrap">
                 {pets?.map((pet) => (
                     <Link
                         key={pet.id}

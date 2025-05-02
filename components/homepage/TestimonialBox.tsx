@@ -42,7 +42,7 @@ export default function TestimoanialBox({ testimonial }) {
 
             <hr className="my-4" />
 
-            <p className="text-wrap text-justify w-full line-clamp-5">
+            <p className="text-wrap md:text-base text-sm text-justify w-full line-clamp-5">
                 {testimonial.testimonial}
             </p>
         </div>
