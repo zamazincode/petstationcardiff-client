@@ -36,7 +36,7 @@ export default function SearchBar() {
     }, [value]);
 
     return (
-        <div className="flex items-center px-4 py-2 rounded-full bg-accent min-w-44">
+        <div className="flex items-center px-4 py-2 rounded-full bg-accent min-w-44 max-lg:w-full">
             <input
                 ref={inputRef}
                 placeholder="Search Products"

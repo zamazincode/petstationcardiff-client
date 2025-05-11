@@ -22,8 +22,10 @@ export async function getPets(): Promise<Pet[]> {
     return data.data;
 }
 
-export async function getBrands(): Promise<Brand[]> {
-    const url = BASE_URL + "/api/brands?populate=logo&sort[0]=id:desc";
+export async function getBrands(
+    query = "/api/brands?populate=logo&sort[0]=id:desc",
+): Promise<Brand[]> {
+    const url = BASE_URL + query;
 
     const response = await fetch(url);
     const data = await response.json();

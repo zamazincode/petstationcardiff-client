@@ -27,7 +27,7 @@ export default function NotFoundPage() {
                     able to lay my eye on the page you've been searching for.
                 </p>
 
-                <LinkButton href="/" className="group">
+                <LinkButton href="/" className="group gap-2.5 p-4">
                     <Home />
                     Back to Home
                 </LinkButton>

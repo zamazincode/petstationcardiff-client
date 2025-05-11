@@ -11,14 +11,18 @@ import "swiper/css/pagination";
 import Image from "next/image";
 import { cn, getStrapiURL } from "@/lib/utils";
 import { useDevice } from "@/lib/hooks/useDevice";
+import { stat } from "fs";
 
 export default function BrandFilter({
     isInside = false,
+    forBox = false,
 }: {
     isInside?: boolean;
+    forBox?: boolean;
 }) {
     const [brands, setBrands] = useState<Brand[]>([]);
-    const { brand, setFilter } = useFilterStore();
+    const brand = useFilterStore((state) => state.brand);
+    const setFilter = useFilterStore((state) => state.setFilter);
 
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -29,9 +33,16 @@ export default function BrandFilter({
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const _brands = await getBrands();
-                setBrands(_brands);
-                setError(false);
+                if (forBox) {
+                    const query = `/api/brands?populate=*&sort[0]=id:desc&filters[box_deals][id][$null]=false`;
+                    const _brands = await getBrands(query);
+                    setBrands(_brands);
+                    setError(false);
+                } else {
+                    const _brands = await getBrands();
+                    setBrands(_brands);
+                    setError(false);
+                }
             } catch (error) {
                 setError(true);
             } finally {
@@ -48,12 +59,9 @@ export default function BrandFilter({
 
     if ((isMobile || isTablet) && !isInside) {
         return (
-            <div className="mb-6 md:mx-auto md:w-full md:max-w-7xl">
-                <h3 className="text-lg font-medium mb-2 container">
-                    Filter by Brands
-                </h3>
+            <div className=" md:mx-auto md:w-full md:max-w-7xl">
                 <Swiper
-                    className="!h-full !pl-8 !pr-2"
+                    className="!h-full !pr-2"
                     slidesPerView={"auto"}
                     spaceBetween={10}
                     pagination={{

@@ -7,9 +7,10 @@ import { getPets } from "@/data/services/get-categories";
 import Image from "next/image";
 import { cn, getStrapiURL } from "@/lib/utils";
 
-export default function CategoryFilter() {
+export default function PetFilter() {
     const [pets, setPets] = useState<Pet[]>([]);
-    const { pet, setFilter } = useFilterStore();
+    const pet = useFilterStore((state) => state.pet);
+    const setFilter = useFilterStore((state) => state.setFilter);
 
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(false);

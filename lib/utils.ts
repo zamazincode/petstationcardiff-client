@@ -11,7 +11,7 @@ export function getStrapiURL() {
     return process.env.NEXT_PUBLIC_STRAPI_URL ?? "http://localhost:1337";
 }
 
-export default async function markdownToHtml(markdown: any) {
+export async function markdownToHtml(markdown: any) {
     const result = await remark().use(html).process(markdown);
     console.log(result);
     return result.toString();

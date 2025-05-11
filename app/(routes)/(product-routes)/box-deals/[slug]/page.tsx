@@ -38,21 +38,34 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import LinkButton from "@/components/ui/LinkButton";
 import RelatedProducts from "@/components/product/RelatedProducts";
 import { toast } from "sonner";
+import { useCartStore } from "@/lib/stores/cartStore";
 
 // #endregion
+
+interface Item {
+    id: number;
+    slug: string;
+    name: string;
+    quantity: number;
+    price: number;
+    stock?: number;
+    image: string;
+}
 
 type BoxDealProductProps = {
     product: Product;
     totalQuantity: number;
     maxQuantity: number;
+    selectedProducts: Item[];
     setTotalQuantiy: Dispatch<SetStateAction<number>>;
-    setSelectedProducts: Dispatch<SetStateAction<{ [slug: string]: number }>>;
+    setSelectedProducts: Dispatch<SetStateAction<Item[]>>;
 };
 const BoxDealProduct = ({
     product,
     totalQuantity,
     setTotalQuantiy,
     maxQuantity,
+    selectedProducts,
     setSelectedProducts,
 }: BoxDealProductProps) => {
     const IMAGE_URL = product.images
@@ -74,23 +87,43 @@ const BoxDealProduct = ({
             toast.warning(`You can select maximum ${maxQuantity} products.`);
             return;
         }
-        if (newQuantity < 1) return;
+        if (newQuantity < 0) return;
 
         setQuantity(newQuantity);
         setTotalQuantiy((prev) => prev + change);
-        setSelectedProducts((prev) => ({
-            ...prev,
-            [product.slug]: newQuantity,
-        }));
+
+        const existing = selectedProducts.find((i) => i.id === product.id);
+        if (existing) {
+            setSelectedProducts((prev) => {
+                return prev.map((i) =>
+                    i.id === product.id ? { ...i, quantity: newQuantity } : i,
+                );
+            });
+        } else {
+            setSelectedProducts((prev) => [
+                ...prev,
+                {
+                    id: product.id,
+                    slug: product.slug,
+                    name: product.name,
+                    price: product.salePrice || product.price,
+                    quantity: newQuantity,
+                    image:
+                        product?.images?.length > 0
+                            ? getStrapiURL() + product?.images[0].url
+                            : "/placeholder-image.png",
+                },
+            ]);
+        }
     };
 
     const incrementQuantity = () => updateQuantity(1);
     const decrementQuantity = () => updateQuantity(-1);
 
     return (
-        <div className="flex items-center h-24 border rounded-lg bg-[#e3e5fa] w-full justify-between px-4 py-2">
+        <div className="flex items-center lg:h-24 rounded-lg  bg-white w-full justify-between  h-full px-4 py-2">
             <div className="flex items-center gap-4">
-                <div className="">
+                <div className="lg:block hidden">
                     <Image
                         src={IMAGE_URL}
                         alt={product.name}
@@ -98,19 +131,24 @@ const BoxDealProduct = ({
                         height={60}
                     />
                 </div>
-                <h4 className="text-lg">{product.name}</h4>
+                <Link
+                    href={`/products/${product.slug}`}
+                    className="text-lg font-medium text-primary truncate max-lg:max-w-[13ch]"
+                >
+                    {product.name}
+                </Link>
             </div>
 
             {/* Buttons */}
-            <div className="flex items-center h-12 border rounded-full w-fit bg-white">
+            <div className="flex items-center h-12 border rounded-lg w-fit bg-white">
                 <button
                     onClick={decrementQuantity}
                     className="flex items-center justify-center h-full px-3 text-gray-600 cursor-pointer hover:text-primary transition-colors disabled:text-gray-200"
-                    disabled={quantity <= 1}
+                    disabled={quantity < 1}
                 >
                     <MinusCircle size={30} />
                 </button>
-                <span className="flex items-center justify-center h-full w-12 text-center font-medium">
+                <span className="flex items-center justify-center h-full w-4 text-center font-medium">
                     {quantity}
                 </span>
                 <button
@@ -131,6 +169,8 @@ const BoxDealProduct = ({
 export default function ProductDetailsPage() {
     const params = useParams();
 
+    const addBoxDeal = useCartStore((state) => state.addBoxDeal);
+
     const [data, setData] = useState<BoxDeal | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -138,9 +178,7 @@ export default function ProductDetailsPage() {
     const [addingToCart, setAddingToCart] = useState(false);
     const [addedToCart, setAddedToCart] = useState(false);
 
-    const [selectedProducts, setSelectedProducts] = useState<{
-        [slug: string]: number;
-    }>({});
+    const [selectedProducts, setSelectedProducts] = useState<Item[]>([]);
     const [totalSelected, setTotalSelected] = useState(0);
 
     // fetch data
@@ -161,12 +199,6 @@ export default function ProductDetailsPage() {
                 setError(error);
             } else {
                 setData(_data[0]);
-                // tüm productlar 0 adet
-                const initialProducts = {};
-                _data[0].products.forEach((product) => {
-                    initialProducts[product.slug] = 0;
-                });
-                setSelectedProducts(initialProducts);
             }
 
             setLoading(false);
@@ -176,18 +208,35 @@ export default function ProductDetailsPage() {
     }, [params.slug]);
 
     const handleAddToCart = () => {
-        setAddingToCart(true);
-        console.log(selectedProducts);
-
-        // Burada sepete ekleme mantığınızı uygulayın
-        setTimeout(() => {
-            setAddingToCart(false);
-            setAddedToCart(true);
+        if (data) {
+            setAddingToCart(true);
 
             setTimeout(() => {
-                setAddedToCart(false);
-            }, 2000);
-        }, 800);
+                setAddingToCart(false);
+                const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
+
+                const boxItem = {
+                    id: uniqueId,
+                    slug: data.slug,
+                    name: data.name,
+                    maxSelection: data.maxQuantity,
+                    price: data.salePrice || data.price,
+                    selectedItems: selectedProducts,
+                    image:
+                        data?.images?.length > 0
+                            ? getStrapiURL() + data?.images[0].url
+                            : "/placeholder-image.png",
+                };
+
+                addBoxDeal(boxItem);
+
+                setAddedToCart(true);
+
+                setTimeout(() => {
+                    setAddedToCart(false);
+                }, 2000);
+            }, 500);
+        }
     };
 
     if (loading) {
@@ -248,7 +297,7 @@ export default function ProductDetailsPage() {
 
     return (
         <>
-            <section className="container sm:pb-32 pb-16 max-sm:mt-12">
+            <section className="container sm:pb-32 pb-20">
                 {/* Breadcrumb */}
                 <div className="mb-6">
                     <Breadcrumb>
@@ -256,19 +305,11 @@ export default function ProductDetailsPage() {
                             <BreadcrumbItem>
                                 <BreadcrumbLink href="/">Home</BreadcrumbLink>
                             </BreadcrumbItem>
-                            <BreadcrumbSeparator />
-                            <BreadcrumbItem>
-                                <BreadcrumbLink href="/products">
-                                    Products
-                                </BreadcrumbLink>
-                            </BreadcrumbItem>
                             {data && (
                                 <>
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>
-                                        <BreadcrumbLink
-                                            href={data?.category?.slug}
-                                        >
+                                        <BreadcrumbLink href="/box-deals">
                                             {data?.category?.name}
                                         </BreadcrumbLink>
                                     </BreadcrumbItem>
@@ -286,86 +327,83 @@ export default function ProductDetailsPage() {
 
                 {data && (
                     <>
-                        <div className="flex lg:flex-row flex-col gap-4 md:gap-8 items-start">
+                        <div className="flex lg:flex-row flex-col lg:gap-8 items-start">
                             {/* Images */}
-                            <div className="flex-1 overflow-hidden">
-                                {data?.images?.length ? (
-                                    <div className="sticky top-8">
-                                        <Fancybox
-                                            options={{
-                                                Carousel: {
-                                                    infinite: false,
-                                                },
-                                            }}
+                            <div className="flex-1 w-full overflow-hidden">
+                                <div className="sticky top-8">
+                                    <Fancybox
+                                        options={{
+                                            Carousel: {
+                                                infinite: false,
+                                            },
+                                        }}
+                                    >
+                                        <FancyboxCarousel
+                                            options={{ infinite: true }}
                                         >
-                                            <FancyboxCarousel
-                                                options={{ infinite: true }}
-                                            >
-                                                {data.images.length > 0 ? (
-                                                    data.images.map((image) => (
-                                                        <div
-                                                            key={image?.id}
-                                                            className="f-carousel__slide max-h-[500px] aspect-square flex items-center justify-center cursor-zoom-in relative rounded-lg overflow-hidden bg-[#E3E5FA] !p-4"
-                                                            data-fancybox="gallery"
-                                                            data-src={
+                                            {data?.images?.length > 0 ? (
+                                                data.images.map((image) => (
+                                                    <div
+                                                        key={image?.id}
+                                                        className="f-carousel__slide max-h-[500px] aspect-square flex items-center justify-center cursor-zoom-in relative rounded-lg overflow-hidden bg-[#E3E5FA] !p-4"
+                                                        data-fancybox="gallery"
+                                                        data-src={
+                                                            getStrapiURL() +
+                                                            image?.url
+                                                        }
+                                                        data-thumb-src={
+                                                            getStrapiURL() +
+                                                            image?.formats
+                                                                ?.thumbnail.url
+                                                        }
+                                                    >
+                                                        {isOnSale && (
+                                                            <div className="absolute top-4 left-4 z-10">
+                                                                <Badge className="bg-orange-500 px-2 py-1 text-sm uppercase">
+                                                                    %
+                                                                    {
+                                                                        discountPercentage
+                                                                    }{" "}
+                                                                    Discount
+                                                                </Badge>
+                                                            </div>
+                                                        )}
+                                                        <Image
+                                                            priority
+                                                            width={500}
+                                                            height={500}
+                                                            alt={data.name}
+                                                            src={
                                                                 getStrapiURL() +
                                                                 image?.url
                                                             }
-                                                            data-thumb-src={
-                                                                getStrapiURL() +
-                                                                image?.formats
-                                                                    ?.thumbnail
-                                                                    .url
-                                                            }
-                                                        >
-                                                            {isOnSale && (
-                                                                <div className="absolute top-4 left-4 z-10">
-                                                                    <Badge className="bg-orange-500 px-2 py-1 text-sm uppercase">
-                                                                        %
-                                                                        {
-                                                                            discountPercentage
-                                                                        }{" "}
-                                                                        Discount
-                                                                    </Badge>
-                                                                </div>
-                                                            )}
-                                                            <Image
-                                                                priority
-                                                                width={500}
-                                                                height={500}
-                                                                alt={data.name}
-                                                                src={
-                                                                    getStrapiURL() +
-                                                                    image?.url
-                                                                }
-                                                                className="w-full h-full object-contain z-[5]"
-                                                            />
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <div
-                                                        className="f-carousel__slide w-full aspect-square"
-                                                        data-fancybox="gallery"
-                                                        data-src="/placeholder-image.png"
-                                                        data-thumb-src="/placeholder-image.png"
-                                                    >
-                                                        <Image
-                                                            width={500}
-                                                            height={500}
-                                                            alt="product image"
-                                                            src="/placeholder-image.png"
-                                                            className="w-full h-auto object-contain"
+                                                            className="w-full h-full object-contain z-[5]"
                                                         />
                                                     </div>
-                                                )}
-                                            </FancyboxCarousel>
-                                        </Fancybox>
-                                    </div>
-                                ) : null}
+                                                ))
+                                            ) : (
+                                                <div
+                                                    className="f-carousel__slide max-h-[500px] aspect-square flex items-center justify-center cursor-zoom-in relative rounded-lg overflow-hidden bg-[#E3E5FA] !p-4"
+                                                    data-fancybox="gallery"
+                                                    data-src="/placeholder-image.png"
+                                                    data-thumb-src="/placeholder-image.png"
+                                                >
+                                                    <Image
+                                                        width={500}
+                                                        height={500}
+                                                        alt="product image"
+                                                        src="/placeholder-image.png"
+                                                        className="w-full h-auto object-contain"
+                                                    />
+                                                </div>
+                                            )}
+                                        </FancyboxCarousel>
+                                    </Fancybox>
+                                </div>
                             </div>
 
                             {/* Informations */}
-                            <div className="flex-1">
+                            <div className="flex-1 w-full">
                                 <div className="space-y-4">
                                     {/* Brand */}
                                     {data?.brand && (
@@ -398,9 +436,9 @@ export default function ProductDetailsPage() {
                                         </h6>
                                         {data.category && (
                                             <Link
-                                                className="capitalize flex gap-2 rounded-full border px-4 py-2 items-center justify-center hover:bg-primary/10 transition-colors"
+                                                className="capitalize flex gap-2 rounded-full border px-4 py-2 items-center justify-center hover:bg-primary/10 transition-colors max-lg:text-xs"
                                                 key={data.category?.id}
-                                                href={`/products?pet=${data.category?.slug}`}
+                                                href={`/products?category=${data.category?.slug}`}
                                             >
                                                 {data.category.image && (
                                                     <Image
@@ -424,7 +462,7 @@ export default function ProductDetailsPage() {
                                             data.pets.length > 0 &&
                                             data.pets.map((pet) => (
                                                 <Link
-                                                    className="uppercase flex gap-2 rounded-full border px-4 py-2 items-center justify-center hover:bg-primary/10 transition-colors"
+                                                    className="uppercase flex gap-2 rounded-full border px-4 py-2 items-center justify-center hover:bg-primary/10 transition-colors max-lg:text-xs"
                                                     key={pet?.id}
                                                     href={`/products?pet=${pet?.slug}`}
                                                 >
@@ -451,7 +489,7 @@ export default function ProductDetailsPage() {
                                         </span>{" "}
                                         product
                                     </h2>
-                                    <div className="flex flex-col gap-2 overflow-auto max-h-[260px] p-4 rounded-2xl border">
+                                    <div className="flex flex-col gap-2 overflow-auto max-h-[260px] p-4 rounded-2xl bg-[#F6F2FC]">
                                         {data?.products?.map((product) => (
                                             <BoxDealProduct
                                                 product={product}
@@ -460,6 +498,9 @@ export default function ProductDetailsPage() {
                                                     setTotalSelected
                                                 }
                                                 maxQuantity={data.maxQuantity}
+                                                selectedProducts={
+                                                    selectedProducts
+                                                }
                                                 setSelectedProducts={
                                                     setSelectedProducts
                                                 }
@@ -491,6 +532,10 @@ export default function ProductDetailsPage() {
                                             <Button
                                                 className="flex-1 h-12 gap-2 text-base font-medium rounded-full"
                                                 onClick={handleAddToCart}
+                                                disabled={
+                                                    totalSelected <
+                                                    data.maxQuantity
+                                                }
                                             >
                                                 {addingToCart ? (
                                                     <span className="inline-flex items-center gap-2">

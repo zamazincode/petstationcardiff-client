@@ -6,29 +6,51 @@ import { getProducts, getBoxDeals } from "@/data/services/get-products";
 import { Product, BoxDeal } from "@/lib/constants/definitions";
 import ProductList from "@/components/product/ProductsList";
 import LinkButton from "@/components/ui/LinkButton";
-import BrandFilter from "@/components/product/BrandsFilter";
-import { FilterX, RefreshCcw, X } from "lucide-react";
+import { Filter, FilterX, RefreshCcw, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFilterStore } from "@/lib/stores/filterStore";
 import FilterSidebar from "@/components/FilterSidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+    Drawer,
+    DrawerClose,
+    DrawerContent,
+    DrawerDescription,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from "@/components/ui/drawer";
+import { useDevice } from "@/lib/hooks/useDevice";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import SearchBar from "@/components/SearchBar";
+import BrandFilter from "@/components/product/BrandsFilter";
 
 type MixedItem = Product | BoxDeal;
 
-export default function ProductsPage() {
+export default function AllBrandsPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const pathname = usePathname();
 
-    const { brand, category, pet, priceRange, resetFilters, setFilter } =
-        useFilterStore();
+    const { ready, isMobile, isTablet } = useDevice();
+
+    const brand = useFilterStore((state) => state.brand);
+    const category = useFilterStore((state) => state.category);
+    const pet = useFilterStore((state) => state.pet);
+    const search = useFilterStore((state) => state.search);
+    const priceRange = useFilterStore((state) => state.priceRange);
+    const resetFilters = useFilterStore((state) => state.resetFilters);
+    const setFilter = useFilterStore((state) => state.setFilter);
 
     const [filteredItems, setFilteredItems] = useState<MixedItem[]>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        resetFilters();
+
         const initialBrand = searchParams.get("brand") || "";
         const initialCategory = searchParams.get("category") || "";
         const initialPet = searchParams.get("pet") || "";
@@ -40,7 +62,7 @@ export default function ProductsPage() {
             pet: initialPet,
             search: initialSearchTerm,
         });
-    }, [searchParams]);
+    }, [pathname]);
 
     // fetch filtered data
     useEffect(() => {
@@ -52,6 +74,17 @@ export default function ProductsPage() {
             params.append("populate", "*");
             params.append("sort[0]", "id:desc");
 
+            if (search) {
+                params.append("filters[$or][0][name][$containsi]", search);
+                params.append(
+                    "filters[$or][1][description][$containsi]",
+                    search,
+                );
+                params.append(
+                    "filters[$or][2][category][name][$containsi]",
+                    search,
+                );
+            }
             if (category)
                 params.append("filters[category][slug][$eq]", category);
             if (pet) params.append("filters[pets][slug][$eq]", pet);
@@ -67,12 +100,14 @@ export default function ProductsPage() {
                     priceRange.max.toString(),
                 );
 
+            const boxquery = `?${params.toString()}`;
+            params.append("filters[stockState][$eq]", "in stock");
             const query = `?${params.toString()}`;
 
             try {
                 const [productsRes, boxDealsRes] = await Promise.all([
                     getProducts(query),
-                    getBoxDeals(query),
+                    getBoxDeals(boxquery),
                 ]);
 
                 if (productsRes.error || boxDealsRes.error) {
@@ -106,14 +141,24 @@ export default function ProductsPage() {
         if (pet) params.set("pet", pet);
         else params.delete("pet");
 
-        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    }, [pet, category, brand, searchParams, priceRange]);
+        if (search) params.set("search", search);
+        else params.delete("search");
+
+        const newUrl = `${pathname}?${params.toString()}`;
+        const currentUrl = `${pathname}?${searchParams.toString()}`;
+
+        if (newUrl !== currentUrl) {
+            router.replace(newUrl, { scroll: false });
+        }
+    }, [pet, category, brand, searchParams, priceRange, search]);
+
+    if (!ready) return;
 
     if (error) {
         return (
             <section className="container pt-8 flex flex-col gap-4 items-center justify-center">
                 <div className="text-red-500">An error occurred</div>
-                <LinkButton href="/products/all-brands">
+                <LinkButton href={pathname}>
                     Retry <RefreshCcw />
                 </LinkButton>
             </section>
@@ -121,28 +166,67 @@ export default function ProductsPage() {
     }
 
     return (
-        <section className="sm:pb-72 pb-40">
-            <div className="mb-8">
-                <h1 className="text-2xl font-medium mb-2 container">
+        <section className="sm:pb-50 pb-24">
+            <div className="mb-8 lg:block hidden">
+                <h1 className="text-2xl font-semibold mb-2 container">
                     All Brands
                 </h1>
                 <BrandFilter />
             </div>
 
-            <div className="flex flex-col md:flex-row gap-8 container">
-                <div className="w-full md:w-72 shrink-0">
-                    <FilterSidebar />
-                </div>
+            <div className="flex flex-col lg:flex-row lg:gap-8 gap-4 container">
+                {isMobile || isTablet ? (
+                    <>
+                        <h1 className="text-2xl font-semibold container">
+                            All Brands
+                        </h1>
 
+                        <Drawer>
+                            <div className="flex justify-between gap-2">
+                                <SearchBar />
+                                <DrawerTrigger className="border border-primary rounded-full h-full aspect-square flex items-center justify-center p-2 hover:bg-primary transition-all group cursor-pointer">
+                                    <Filter className="group-hover:text-white text-primary" />
+                                </DrawerTrigger>
+                            </div>
+                            <DrawerContent className="px-4">
+                                <DrawerHeader>
+                                    <DrawerTitle></DrawerTitle>
+                                </DrawerHeader>
+                                <ScrollArea className="overflow-auto no-scrollbar">
+                                    <FilterSidebar showBrand />
+                                </ScrollArea>
+                            </DrawerContent>
+                        </Drawer>
+
+                        <BrandFilter />
+                    </>
+                ) : (
+                    <div className="w-full md:w-72 shrink-0">
+                        <FilterSidebar showBrand />
+                    </div>
+                )}
                 <div className="flex-1">
-                    {filteredItems && filteredItems?.length > 0 && (
-                        <div className="mb-2">
-                            {filteredItems?.length} results
-                        </div>
-                    )}
-                    {(category || pet || brand) && (
-                        <div className="mb-4 flex flex-wrap gap-2.5 items-center">
+                    {(category || pet || brand || search) && (
+                        <div className="mb-4 flex flex-wrap gap-1 md:gap-2.5 items-center">
                             <span>Filters:</span>
+
+                            {search && (
+                                <Badge
+                                    variant="secondary"
+                                    className="text-base font-normal"
+                                >
+                                    {search}
+                                    <button
+                                        className="hover:bg-red-500 bg-zinc-300 flex items-center justify-center transition-colors cursor-pointer text-white w-5 h-5 rounded-full"
+                                        onClick={() => {
+                                            setFilter("search", "");
+                                        }}
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </Badge>
+                            )}
+
                             {category && (
                                 <Badge
                                     variant="secondary"
@@ -195,14 +279,22 @@ export default function ProductsPage() {
                             )}
 
                             <Button
-                                variant="ghost"
+                                variant="destructive"
                                 size="sm"
                                 onClick={resetFilters}
-                                className="h-8 px-2"
+                                className="h-8 px-2 ml-auto"
                             >
                                 <FilterX className="mr-1 h-4 w-4" />
                                 Clear
                             </Button>
+                        </div>
+                    )}
+                    {filteredItems && filteredItems?.length > 0 && (
+                        <div className="mb-2 text-copy-light font-light">
+                            <span className="text-copy font-semibold">
+                                {filteredItems?.length}
+                            </span>{" "}
+                            results found
                         </div>
                     )}
 

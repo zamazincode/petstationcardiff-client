@@ -77,14 +77,9 @@ export async function registerUserAction(prevState: any, formData: FormData) {
 
 // login form validation schema
 const schemaLogin = z.object({
-    identifier: z
-        .string()
-        .min(3, {
-            message: "Identifier must have at least 3 or more characters",
-        })
-        .max(20, {
-            message: "Please enter a valid username or email address",
-        }),
+    identifier: z.string().min(3, {
+        message: "Identifier must have at least 3 or more characters",
+    }),
     password: z
         .string()
         .min(6, {

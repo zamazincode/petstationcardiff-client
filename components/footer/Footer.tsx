@@ -19,7 +19,7 @@ export default function Footer() {
 
             <div className="container mb-16 flex items-stretch gap-8 max-md:flex-col">
                 {/* Box */}
-                <div className="max-w-[400px] p-8 w-fit rounded-xl bg-gradient-to-b from-[#DEBFFF]/10 to-[#DEBFFF]/20 border border-[#B74BFF]/15 ">
+                <div className="max-w-[400px] p-8 w-fit rounded-xl bg-gradient-to-b from-[#DEBFFF]/10 to-[#DEBFFF]/20 border border-[#B74BFF]/15 max-sm:text-xs max-sm:p-2.5">
                     <Logo variant="link" className="mb-2" />
                     {/* <p className="text-lg my-2 text-foreground/80">
                         Top quality food and products for the happiness & health

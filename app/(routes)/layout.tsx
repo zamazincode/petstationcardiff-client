@@ -1,6 +1,6 @@
 import Footer from "@/components/footer/Footer";
 import Header from "@/components/header/Header";
-import MobileMenu from "@/components/mobile/mobile-menu";
+import MobileHeader from "@/components/mobile/mobile-header";
 import MoveTop from "@/components/move-top";
 
 export default function RoutesLayout({
@@ -11,8 +11,8 @@ export default function RoutesLayout({
     return (
         <>
             <MoveTop />
-            <MobileMenu />
             <Header />
+            <MobileHeader />
             <main className="min-h-screen">{children}</main>
             <Footer />
         </>

@@ -8,7 +8,9 @@ import { getBoxDeals, getProducts } from "@/data/services/get-products";
 import { Button } from "@/components/ui/button";
 
 export default function PriceRangeFilter() {
-    const { priceRange, setPriceRange } = useFilterStore();
+    const priceRange = useFilterStore((state) => state.priceRange);
+    const setPriceRange = useFilterStore((state) => state.setPriceRange);
+
     const [maxPriceLimit, setMaxPriceLimit] = useState(10000);
     const [isLoading, setIsLoading] = useState(true);
     const initialLoad = useRef(true);

@@ -37,11 +37,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import LinkButton from "@/components/ui/LinkButton";
 import RelatedProducts from "@/components/product/RelatedProducts";
+import { useCartStore } from "@/lib/stores/cartStore";
 
 // #endregion
 
 export default function ProductDetailsPage() {
     const params = useParams();
+
+    const addNormalItem = useCartStore((state) => state.addNormalItem);
 
     const [data, setData] = useState<Product | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -91,17 +94,32 @@ export default function ProductDetailsPage() {
     };
 
     const handleAddToCart = () => {
-        setAddingToCart(true);
-
-        // Burada sepete ekleme mantığınızı uygulayın
-        setTimeout(() => {
-            setAddingToCart(false);
-            setAddedToCart(true);
-
+        if (data) {
+            setAddingToCart(true);
             setTimeout(() => {
-                setAddedToCart(false);
-            }, 2000);
-        }, 800);
+                const item = {
+                    id: data.id,
+                    slug: data.slug,
+                    name: data.name,
+                    price: data.salePrice || data.price,
+                    quantity,
+                    stock: data.trackStock ? data.quantity : undefined,
+                    image:
+                        data?.images?.length > 0
+                            ? getStrapiURL() + data?.images[0].url
+                            : "/placeholder-image.png",
+                };
+
+                addNormalItem(item);
+
+                setAddingToCart(false);
+                setAddedToCart(true);
+
+                setTimeout(() => {
+                    setAddedToCart(false);
+                }, 2000);
+            }, 300);
+        }
     };
 
     if (loading) {
@@ -174,7 +192,7 @@ export default function ProductDetailsPage() {
                     className="object-cover"
                 />
             </Link> */}
-            <section className="container sm:pb-32 pb-16">
+            <section className="container sm:pb-32 pb-20">
                 {/* Breadcrumb */}
                 <div className="lg:mb-6 mb-2.5">
                     <Breadcrumb>
@@ -193,10 +211,7 @@ export default function ProductDetailsPage() {
                                     <BreadcrumbSeparator />
                                     <BreadcrumbItem>
                                         <BreadcrumbLink
-                                            href={
-                                                "/category/" +
-                                                data?.category?.slug
-                                            }
+                                            href={`/products?brand=${data?.brand?.slug}`}
                                         >
                                             {data?.category?.name}
                                         </BreadcrumbLink>
@@ -215,82 +230,79 @@ export default function ProductDetailsPage() {
 
                 {data && (
                     <>
-                        <div className="flex overflow-hidden lg:flex-row flex-col md:gap-8 items-start">
+                        <div className="flex overflow-hidden lg:flex-row flex-col md:gap-8 gap-4 items-start">
                             {/* Images */}
                             <div className="flex-1 w-full overflow-hidden">
-                                {data?.images?.length ? (
-                                    <div className="sticky top-8">
-                                        <Fancybox
-                                            options={{
-                                                Carousel: {
-                                                    infinite: false,
-                                                },
-                                            }}
+                                <div className="sticky top-8">
+                                    <Fancybox
+                                        options={{
+                                            Carousel: {
+                                                infinite: false,
+                                            },
+                                        }}
+                                    >
+                                        <FancyboxCarousel
+                                            options={{ infinite: true }}
                                         >
-                                            <FancyboxCarousel
-                                                options={{ infinite: true }}
-                                            >
-                                                {data.images.length > 0 ? (
-                                                    data.images.map((image) => (
-                                                        <div
-                                                            key={image?.id}
-                                                            className="f-carousel__slide max-h-[500px] aspect-square flex items-center justify-center cursor-zoom-in relative rounded-lg overflow-hidden bg-[#E3E5FA] !p-4"
-                                                            data-fancybox="gallery"
-                                                            data-src={
+                                            {data?.images?.length > 0 ? (
+                                                data.images.map((image) => (
+                                                    <div
+                                                        key={image?.id}
+                                                        className="f-carousel__slide max-h-[500px] aspect-square flex items-center justify-center cursor-zoom-in relative rounded-lg overflow-hidden bg-[#E3E5FA] !p-4"
+                                                        data-fancybox="gallery"
+                                                        data-src={
+                                                            getStrapiURL() +
+                                                            image?.url
+                                                        }
+                                                        data-thumb-src={
+                                                            getStrapiURL() +
+                                                            image?.formats
+                                                                ?.thumbnail.url
+                                                        }
+                                                    >
+                                                        {isOnSale && (
+                                                            <div className="absolute top-4 left-4 z-10">
+                                                                <Badge className="bg-orange-500 px-2 py-1 text-sm uppercase">
+                                                                    %
+                                                                    {
+                                                                        discountPercentage
+                                                                    }{" "}
+                                                                    Discount
+                                                                </Badge>
+                                                            </div>
+                                                        )}
+                                                        <Image
+                                                            priority
+                                                            width={500}
+                                                            height={500}
+                                                            alt={data.name}
+                                                            src={
                                                                 getStrapiURL() +
                                                                 image?.url
                                                             }
-                                                            data-thumb-src={
-                                                                getStrapiURL() +
-                                                                image?.formats
-                                                                    ?.thumbnail
-                                                                    .url
-                                                            }
-                                                        >
-                                                            {isOnSale && (
-                                                                <div className="absolute top-4 left-4 z-10">
-                                                                    <Badge className="bg-orange-500 px-2 py-1 text-sm uppercase">
-                                                                        %
-                                                                        {
-                                                                            discountPercentage
-                                                                        }{" "}
-                                                                        Discount
-                                                                    </Badge>
-                                                                </div>
-                                                            )}
-                                                            <Image
-                                                                priority
-                                                                width={500}
-                                                                height={500}
-                                                                alt={data.name}
-                                                                src={
-                                                                    getStrapiURL() +
-                                                                    image?.url
-                                                                }
-                                                                className="w-full h-full object-contain z-[5]"
-                                                            />
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <div
-                                                        className="f-carousel__slide w-full aspect-square"
-                                                        data-fancybox="gallery"
-                                                        data-src="/placeholder-image.png"
-                                                        data-thumb-src="/placeholder-image.png"
-                                                    >
-                                                        <Image
-                                                            width={500}
-                                                            height={500}
-                                                            alt="product image"
-                                                            src="/placeholder-image.png"
-                                                            className="w-full h-auto object-contain"
+                                                            className="w-full h-full object-contain z-[5]"
                                                         />
                                                     </div>
-                                                )}
-                                            </FancyboxCarousel>
-                                        </Fancybox>
-                                    </div>
-                                ) : null}
+                                                ))
+                                            ) : (
+                                                <div
+                                                    className="f-carousel__slide max-h-[500px] aspect-square flex items-center justify-center cursor-zoom-in relative rounded-lg overflow-hidden bg-[#E3E5FA] !p-4"
+                                                    data-fancybox="gallery"
+                                                    data-src="/placeholder-image.png"
+                                                    data-thumb-src="/placeholder-image.png"
+                                                >
+                                                    <Image
+                                                        width={500}
+                                                        height={500}
+                                                        alt="product image"
+                                                        src="/placeholder-image.png"
+                                                        className="w-full h-auto object-contain"
+                                                    />
+                                                </div>
+                                            )}
+                                        </FancyboxCarousel>
+                                    </Fancybox>
+                                </div>
                             </div>
 
                             {/* Informations */}
@@ -353,9 +365,9 @@ export default function ProductDetailsPage() {
                                         </h6>
                                         {data.category && (
                                             <Link
-                                                className="capitalize flex gap-2 rounded-full border lg:px-4 lg:py-2 px-2 py-1 items-center justify-center hover:bg-primary/10 transition-colors"
+                                                className="capitalize flex gap-2 rounded-full border lg:px-4 lg:py-2 px-2 py-1 items-center justify-center hover:bg-primary/10 transition-colors max-lg:text-xs"
                                                 key={data.category?.id}
-                                                href={`/products?pet=${data.category?.slug}`}
+                                                href={`/products?category=${data.category?.slug}`}
                                             >
                                                 {data.category.image && (
                                                     <Image
@@ -379,7 +391,7 @@ export default function ProductDetailsPage() {
                                             data.pets.length > 0 &&
                                             data.pets.map((pet) => (
                                                 <Link
-                                                    className="uppercase flex gap-2 rounded-full border lg:px-4 lg:py-2 px-2 py-1 items-center justify-center hover:bg-primary/10 transition-colors"
+                                                    className="uppercase flex gap-2 rounded-full border lg:px-4 lg:py-2 px-2 py-1 items-center justify-center hover:bg-primary/10 transition-colors max-lg:text-xs"
                                                     key={pet?.id}
                                                     href={`/products?pet=${pet?.slug}`}
                                                 >

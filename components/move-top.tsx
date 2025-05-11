@@ -11,12 +11,12 @@ export default function MoveTop() {
         }
     };
 
-    const [show, setShow] = useState(true);
+    const [show, setShow] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
-            if (currentScrollY > 1000) {
+            if (currentScrollY > 100) {
                 setShow(true);
             } else {
                 setShow(false);

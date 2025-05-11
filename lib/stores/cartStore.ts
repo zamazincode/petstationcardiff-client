@@ -1,36 +1,40 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-type Product = {
-    id: string;
+export interface Product {
+    id: number;
+    slug: string;
     name: string;
     price: number;
     quantity: number;
-};
+    stock?: number;
+    image: string;
+}
 
-type BoxDeal = {
-    id: string;
-    title: string;
+export interface BoxDeal {
+    id: number;
+    slug: string;
+    name: string;
     maxSelection: number;
-    price: number; // total price
+    price: number;
     selectedItems: Product[];
-};
+    image: string;
+}
 
-type CartState = {
+export interface CartState {
     normalItems: Product[];
     boxDeals: BoxDeal[];
 
-    // Normal ürünler
     addNormalItem: (item: Product) => void;
-    removeNormalItem: (id: string) => void;
+    removeNormalItem: (id: number) => void;
+    updateQuantity: (id: number, quantity: number) => void;
 
-    // Box Deal işlemleri
     addBoxDeal: (deal: BoxDeal) => void;
-    updateBoxDealItems: (dealId: string, items: Product[]) => void;
-    removeBoxDeal: (dealId: string) => void;
+    updateBoxDealItems: (dealId: number, items: Product[]) => void;
+    removeBoxDeal: (dealId: number) => void;
 
     clearCart: () => void;
-};
+}
 
 export const useCartStore = create<CartState>()(
     persist(
@@ -38,14 +42,23 @@ export const useCartStore = create<CartState>()(
             normalItems: [],
             boxDeals: [],
 
-            addNormalItem: (item) => {
+            addNormalItem: (item: Product) => {
                 const items = get().normalItems;
                 const existing = items.find((i) => i.id === item.id);
+
                 if (existing) {
+                    const newQuantity = existing.quantity + item.quantity;
+
+                    // stock check
+                    const finalQuantity =
+                        existing.stock && newQuantity > existing.stock
+                            ? existing.stock
+                            : newQuantity;
+
                     set({
                         normalItems: items.map((i) =>
                             i.id === item.id
-                                ? { ...i, quantity: i.quantity + item.quantity }
+                                ? { ...i, quantity: finalQuantity }
                                 : i,
                         ),
                     });
@@ -54,21 +67,40 @@ export const useCartStore = create<CartState>()(
                 }
             },
 
-            removeNormalItem: (id) => {
+            removeNormalItem: (id: number) => {
                 set({
                     normalItems: get().normalItems.filter((i) => i.id !== id),
                 });
             },
 
-            addBoxDeal: (deal) => {
-                const deals = get().boxDeals;
-                const existing = deals.find((d) => d.id === deal.id);
-                if (!existing) {
-                    set({ boxDeals: [...deals, deal] });
-                }
+            updateQuantity: (id: number, quantity: number) => {
+                if (quantity < 1) return;
+
+                const items = get().normalItems;
+                const existing = items.find((item) => item.id === id);
+
+                if (!existing) return;
+
+                const maxQuantity =
+                    existing.stock && quantity > existing.stock
+                        ? existing.stock
+                        : quantity;
+
+                set({
+                    normalItems: items.map((item) =>
+                        item.id === id
+                            ? { ...item, quantity: maxQuantity }
+                            : item,
+                    ),
+                });
             },
 
-            updateBoxDealItems: (dealId, items) => {
+            addBoxDeal: (deal: BoxDeal) => {
+                const deals = get().boxDeals;
+                set({ boxDeals: [...deals, deal] });
+            },
+
+            updateBoxDealItems: (dealId: number, items: Product[]) => {
                 set({
                     boxDeals: get().boxDeals.map((deal) =>
                         deal.id === dealId
@@ -78,7 +110,7 @@ export const useCartStore = create<CartState>()(
                 });
             },
 
-            removeBoxDeal: (dealId) => {
+            removeBoxDeal: (dealId: number) => {
                 set({
                     boxDeals: get().boxDeals.filter((d) => d.id !== dealId),
                 });
@@ -88,6 +120,7 @@ export const useCartStore = create<CartState>()(
         }),
         {
             name: "cart-storage",
+            storage: createJSONStorage(() => localStorage),
         },
     ),
 );

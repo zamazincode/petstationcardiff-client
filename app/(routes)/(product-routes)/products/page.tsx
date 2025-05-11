@@ -6,7 +6,7 @@ import { getProducts, getBoxDeals } from "@/data/services/get-products";
 import { Product, BoxDeal } from "@/lib/constants/definitions";
 import ProductList from "@/components/product/ProductsList";
 import LinkButton from "@/components/ui/LinkButton";
-import { FilterX, RefreshCcw, X } from "lucide-react";
+import { Filter, FilterX, RefreshCcw, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFilterStore } from "@/lib/stores/filterStore";
 import FilterSidebar from "@/components/FilterSidebar";
@@ -25,6 +25,7 @@ import {
 import { useDevice } from "@/lib/hooks/useDevice";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SearchBar from "@/components/SearchBar";
+import CategoryFilter from "@/components/product/CategoryFilter";
 
 type MixedItem = Product | BoxDeal;
 
@@ -53,13 +54,11 @@ export default function ProductsPage() {
         const initialPet = searchParams.get("pet") || "";
         const initialSearchTerm = searchParams.get("search") || "";
 
-        useFilterStore.setState({
-            brand: initialBrand,
-            category: initialCategory,
-            pet: initialPet,
-            search: initialSearchTerm,
-        });
-    }, []);
+        setFilter("brand", initialBrand);
+        setFilter("category", initialCategory);
+        setFilter("pet", initialPet);
+        setFilter("search", initialSearchTerm);
+    }, [pathname, searchParams]);
 
     // fetch filtered data
     useEffect(() => {
@@ -97,12 +96,14 @@ export default function ProductsPage() {
                     priceRange.max.toString(),
                 );
 
+            const boxquery = `?${params.toString()}`;
+            params.append("filters[stockState][$eq]", "in stock");
             const query = `?${params.toString()}`;
 
             try {
                 const [productsRes, boxDealsRes] = await Promise.all([
                     getProducts(query),
-                    getBoxDeals(query),
+                    getBoxDeals(boxquery),
                 ]);
 
                 if (productsRes.error || boxDealsRes.error) {
@@ -145,7 +146,7 @@ export default function ProductsPage() {
         if (newUrl !== currentUrl) {
             router.replace(newUrl, { scroll: false });
         }
-    }, [pet, category, brand, searchParams, priceRange, search]);
+    }, [pet, category, brand, search, priceRange]);
 
     if (!ready) return;
 
@@ -166,28 +167,32 @@ export default function ProductsPage() {
                 <h1 className="text-2xl font-semibold mb-2 container">Shop</h1>
             </div>
 
-            <div className="flex flex-col md:flex-row lg:gap-8 gap-2.5 container">
+            <div className="flex flex-col lg:flex-row lg:gap-8 gap-4 container">
                 {isMobile || isTablet ? (
-                    <Drawer>
-                        <div className="flex justify-between gap-2">
-                            <SearchBar />
-                            <DrawerTrigger>Filter</DrawerTrigger>
-                        </div>
-                        <DrawerContent className="px-4">
-                            <DrawerHeader>
-                                <DrawerTitle></DrawerTitle>
-                            </DrawerHeader>
-                            <ScrollArea className="overflow-auto no-scrollbar">
-                                <FilterSidebar showBrand />
-                            </ScrollArea>
-                        </DrawerContent>
-                    </Drawer>
+                    <>
+                        <Drawer>
+                            <div className="flex justify-between gap-2">
+                                <SearchBar />
+                                <DrawerTrigger className="border border-primary rounded-full h-full aspect-square flex items-center justify-center p-2 hover:bg-primary transition-all group cursor-pointer">
+                                    <Filter className="group-hover:text-white text-primary" />
+                                </DrawerTrigger>
+                            </div>
+                            <DrawerContent className="px-4">
+                                <DrawerHeader>
+                                    <DrawerTitle></DrawerTitle>
+                                </DrawerHeader>
+                                <ScrollArea className="overflow-auto no-scrollbar">
+                                    <FilterSidebar showBrand />
+                                </ScrollArea>
+                            </DrawerContent>
+                        </Drawer>
+                        <CategoryFilter />
+                    </>
                 ) : (
                     <div className="w-full md:w-72 shrink-0">
-                        <FilterSidebar showBrand showCategory={false} />
+                        <FilterSidebar showBrand />
                     </div>
                 )}
-
                 <div className="flex-1">
                     {(category || pet || brand || search) && (
                         <div className="mb-4 flex flex-wrap gap-1 md:gap-2.5 items-center">

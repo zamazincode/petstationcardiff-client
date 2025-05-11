@@ -13,7 +13,9 @@ export default function CategoryFilter({
     variant?: "default" | "wide";
 }) {
     const [categories, setCategories] = useState<Category[]>([]);
-    const { category, setFilter } = useFilterStore();
+
+    const category = useFilterStore((state) => state.category);
+    const setFilter = useFilterStore((state) => state.setFilter);
 
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -35,19 +37,23 @@ export default function CategoryFilter({
         fetchData();
     }, []);
 
+    if (error) {
+        return <div className="text-red-500">{error}</div>;
+    }
+
     return (
-        <div className="mb-6">
+        <div className="">
             {variant === "wide" && (
                 <h3 className="text-base font-medium mb-2">Categories</h3>
             )}
             <div
-                className={cn("flex gap-2", {
+                className={cn("flex gap-2 overflow-auto no-scrollbar", {
                     "flex-col": variant === "wide",
                 })}
             >
                 <button
                     className={cn(
-                        "cursor-pointer border-2 border-accent rounded-full px-5 py-1  hover:border-primary hover:bg-primary/10 transition-all text-xs h-8",
+                        "cursor-pointer border-2 border-accent rounded-full px-6 py-1  hover:border-primary hover:bg-primary/10 transition-all text-xs h-12",
                         {
                             "bg-primary/10 border-primary": category === "",
                             "bg-primary/5": variant === "default",
@@ -61,11 +67,12 @@ export default function CategoryFilter({
                     <button
                         key={cat.id}
                         className={cn(
-                            "cursor-pointer flex border-2 gap-6 border-accent text-xs rounded-full px-6 py-1 hover:border-primary hover:bg-primary/10 transition-all items-center justify-between h-8 text-nowrap",
+                            "cursor-pointer flex border-2 gap-6 border-accent text-xs rounded-full px-6 py-1 hover:border-primary hover:bg-primary/10 transition-all items-center justify-between h-12",
                             {
                                 "bg-primary/10 border-primary":
                                     category === cat.slug,
-                                "gap-2 bg-primary/5": variant === "default",
+                                "gap-2 justify-center bg-primary/5":
+                                    variant === "default",
                             },
                         )}
                         onClick={() => setFilter("category", cat.slug)}
@@ -74,12 +81,16 @@ export default function CategoryFilter({
                             <Image
                                 src={getStrapiURL() + cat.image.url}
                                 alt={cat.name}
-                                width={24}
-                                height={24}
-                                className="w-6 h-6 object-contain"
+                                width={28}
+                                height={28}
+                                className={cn("w-8 h-8 object-contain", {
+                                    "w-6 h-6": variant === "wide",
+                                })}
                             />
                         )}
-                        <div className="text-left w-full">{cat.name}</div>
+                        <div className="text-left w-full text-nowrap">
+                            {cat.name}
+                        </div>
                     </button>
                 ))}
             </div>

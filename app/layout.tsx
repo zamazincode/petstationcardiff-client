@@ -3,7 +3,8 @@ import { Sour_Gummy, Poppins } from "next/font/google";
 import "./globals.css";
 
 import { Toaster } from "@/components/ui/sonner";
-import MobileHeader from "@/components/mobile/mobile-header";
+import MobileMenu from "@/components/mobile/mobile-menu";
+import AutoScrollToTop from "@/components/AutoScrollTop";
 
 const sourGummy = Sour_Gummy({
     variable: "--font-sour-gummy",
@@ -28,9 +29,10 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${poppings.className} ${sourGummy.variable} antialiased`}
+                className={`${poppings.className} ${sourGummy.variable} antialiased `}
             >
-                <MobileHeader />
+                <AutoScrollToTop />
+                <MobileMenu />
                 {children}
                 <Toaster />
             </body>

@@ -1,7 +1,12 @@
+"use client";
+
 import { BoxDeal, Product } from "@/lib/constants/definitions";
+import { useCartStore } from "@/lib/stores/cartStore";
 import { cn, getStrapiURL } from "@/lib/utils";
+import { Check, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function ProductBox({
     data,
@@ -12,10 +17,48 @@ export default function ProductBox({
     className?: string;
     isColored?: boolean;
 }) {
-    const url =
-        data?.category?.slug === "raw-box-deals"
-            ? "/box-deals/" + data.slug
-            : "/products/" + data.slug;
+    const addNormalItem = useCartStore((state) => state.addNormalItem);
+    const [addingToCart, setAddingToCart] = useState(false);
+    const [addedToCart, setAddedToCart] = useState(false);
+
+    const isProduct = data?.category?.slug !== "raw-box-deals";
+
+    const url = !isProduct
+        ? "/box-deals/" + data.slug
+        : "/products/" + data.slug;
+
+    const handleAddToCart = () => {
+        if (data && isProduct) {
+            setAddingToCart(true);
+            setTimeout(() => {
+                const item = {
+                    id: data.id,
+                    slug: data.slug,
+                    name: data.name,
+                    price: data.salePrice || data.price,
+                    quantity: 1,
+                    stock: (data as Product)?.trackStock
+                        ? (data as Product)?.quantity
+                        : undefined,
+                    image:
+                        data?.images?.length > 0
+                            ? getStrapiURL() + data?.images[0].url
+                            : "/placeholder-image.png",
+                };
+
+                addNormalItem(item);
+
+                setAddingToCart(false);
+                setAddedToCart(true);
+
+                setTimeout(() => {
+                    setAddedToCart(false);
+                }, 2000);
+            }, 300);
+        } else {
+            return;
+        }
+    };
 
     return (
         <div
@@ -25,7 +68,7 @@ export default function ProductBox({
             )}
         >
             {data.salePrice && (
-                <div className="bg-green-600 px-2.5 py-0.5 text-white rounded-md text-base absolute top-2 left-2 z-10">
+                <div className="bg-green-600 px-2.5 py-0.5 text-white rounded-md text-base absolute top-2 left-2 z-[3]">
                     SALE
                 </div>
             )}
@@ -59,7 +102,7 @@ export default function ProductBox({
                 <div>
                     {data?.category && (
                         <Link
-                            href={data.category?.slug || "#"}
+                            href={`/products?category=${data?.category?.slug}`}
                             className="text-xs sm:text-sm text-gray-600 font-light hover:text-gray-900 transition-colors"
                         >
                             {data.category?.name}
@@ -89,40 +132,32 @@ export default function ProductBox({
                             href={url}
                             className="text-primary border border-primary p-2 rounded-full cursor-pointer hover:bg-primary hover:text-white transition-colors"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width={24}
-                                height={24}
-                                viewBox="0 0 14 14"
-                            >
-                                <path
-                                    fill="currentColor"
-                                    fillRule="evenodd"
-                                    d="M3.505.078a.75.75 0 0 1 .746.675l.285 2.833h7.549a1.43 1.43 0 0 1 1.217.6a1.43 1.43 0 0 1 .199 1.286l-1.239 3.725V9.2a1.43 1.43 0 0 1-1.417.973H4.994a1.43 1.43 0 0 1-1.431-1.24L3.08 4.135l-.002-.052l-.252-2.506H1.177a.75.75 0 0 1 0-1.5zm7.15 11.566a1.178 1.178 0 1 1 0 2.356a1.178 1.178 0 0 1 0-2.356m-3.969 1.178a1.178 1.178 0 1 0-2.355 0a1.178 1.178 0 0 0 2.355 0m1.626-7.759a.625.625 0 0 0-.625.625v.687H7a.625.625 0 1 0 0 1.25h.687v.687a.625.625 0 0 0 1.25 0v-.687h.687a.625.625 0 1 0 0-1.25h-.687v-.687a.625.625 0 0 0-.625-.625"
-                                    clipRule="evenodd"
-                                ></path>
-                            </svg>
+                            <ShoppingCart size={24} fill="#612cc9" />
                         </Link>
                     ) : (
                         <button
-                            onClick={() => {
-                                // add cart action
-                            }}
-                            className="text-primary border border-primary p-2 rounded-full cursor-pointer hover:bg-primary hover:text-white transition-colors"
+                            onClick={handleAddToCart}
+                            disabled={
+                                addingToCart ||
+                                ((data as Product)?.trackStock &&
+                                    (data as Product)?.stockState ===
+                                        "out of stock")
+                            }
+                            className="text-primary border border-primary p-2 h-11 w-11 rounded-full cursor-pointer hover:bg-primary hover:text-white transition-colors"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width={24}
-                                height={24}
-                                viewBox="0 0 14 14"
-                            >
-                                <path
-                                    fill="currentColor"
-                                    fillRule="evenodd"
-                                    d="M3.505.078a.75.75 0 0 1 .746.675l.285 2.833h7.549a1.43 1.43 0 0 1 1.217.6a1.43 1.43 0 0 1 .199 1.286l-1.239 3.725V9.2a1.43 1.43 0 0 1-1.417.973H4.994a1.43 1.43 0 0 1-1.431-1.24L3.08 4.135l-.002-.052l-.252-2.506H1.177a.75.75 0 0 1 0-1.5zm7.15 11.566a1.178 1.178 0 1 1 0 2.356a1.178 1.178 0 0 1 0-2.356m-3.969 1.178a1.178 1.178 0 1 0-2.355 0a1.178 1.178 0 0 0 2.355 0m1.626-7.759a.625.625 0 0 0-.625.625v.687H7a.625.625 0 1 0 0 1.25h.687v.687a.625.625 0 0 0 1.25 0v-.687h.687a.625.625 0 1 0 0-1.25h-.687v-.687a.625.625 0 0 0-.625-.625"
-                                    clipRule="evenodd"
-                                ></path>
-                            </svg>
+                            {addingToCart ? (
+                                <span className="inline-flex items-center gap-2">
+                                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-b-transparent border-primary"></span>
+                                </span>
+                            ) : addedToCart ? (
+                                <span className="inline-flex items-center gap-2">
+                                    <Check size={24} />
+                                </span>
+                            ) : (
+                                <span className="inline-flex items-center gap-2">
+                                    <ShoppingCart size={24} fill="#612cc9" />
+                                </span>
+                            )}
                         </button>
                     )}
                 </div>

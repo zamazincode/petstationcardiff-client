@@ -13,7 +13,7 @@ const headerLinks = [
     },
     {
         title: "Raw Box Deals",
-        href: "/products?category=raw-box-deals",
+        href: "/box-deals",
     },
     {
         title: "Treats",
