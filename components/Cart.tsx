@@ -13,18 +13,42 @@ import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function Cart() {
+    // to force re-render on broadcast events
+    const [, setForceUpdate] = useState({});
+
     const normalItems = useCartStore((state) => state.normalItems);
     const boxDeals = useCartStore((state) => state.boxDeals);
     const removeBoxDeal = useCartStore((state) => state.removeBoxDeal);
+
+    useEffect(() => {
+        let broadcastChannel: BroadcastChannel | null = null;
+
+        try {
+            broadcastChannel = new BroadcastChannel("cart-sync-channel");
+
+            broadcastChannel.onmessage = () => {
+                setForceUpdate({});
+            };
+        } catch (error) {
+            console.warn("BroadcastChannel not supported in this browser");
+        }
+
+        return () => {
+            if (broadcastChannel) {
+                broadcastChannel.close();
+            }
+        };
+    }, []);
 
     const totalItemCount =
         normalItems.reduce((acc, item) => acc + item.quantity, 0) +
         boxDeals.reduce((acc, deal) => acc + 1, 0);
 
     const subTotal =
-        normalItems.reduce((acc, item) => acc + item.price, 0) +
+        normalItems.reduce((acc, item) => acc + item.price * item.quantity, 0) +
         boxDeals.reduce((acc, deal) => acc + deal.price, 0);
 
     return (
@@ -179,7 +203,7 @@ const Product = ({ item }) => {
                 </div>
                 <div className="flex items-end justify-between">
                     <div className="text-sm font-semibold">
-                        {item.price.toFixed(2)} £
+                        {(item.price * item.quantity).toFixed(2)} £
                     </div>
                     <div className="flex items-center gap-2">
                         <button

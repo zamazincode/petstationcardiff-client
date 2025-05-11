@@ -34,93 +34,147 @@ export interface CartState {
     removeBoxDeal: (dealId: number) => void;
 
     clearCart: () => void;
+
+    syncFromBroadcast: (
+        newState: Pick<CartState, "normalItems" | "boxDeals">,
+    ) => void;
+}
+
+let broadcastChannel: BroadcastChannel | null = null;
+
+if (typeof window !== "undefined") {
+    try {
+        broadcastChannel = new BroadcastChannel("cart-sync-channel");
+    } catch (error) {
+        console.warn(
+            "BroadcastChannel not supported in this browser, fallback to localStorage only",
+        );
+    }
 }
 
 export const useCartStore = create<CartState>()(
     persist(
-        (set, get) => ({
-            normalItems: [],
-            boxDeals: [],
+        (set, get) => {
+            const broadcastChanges = () => {
+                if (broadcastChannel) {
+                    const { normalItems, boxDeals } = get();
+                    broadcastChannel.postMessage({ normalItems, boxDeals });
+                }
+            };
 
-            addNormalItem: (item: Product) => {
-                const items = get().normalItems;
-                const existing = items.find((i) => i.id === item.id);
+            return {
+                normalItems: [],
+                boxDeals: [],
 
-                if (existing) {
-                    const newQuantity = existing.quantity + item.quantity;
+                addNormalItem: (item: Product) => {
+                    const items = get().normalItems;
+                    const existing = items.find((i) => i.id === item.id);
 
-                    // stock check
-                    const finalQuantity =
-                        existing.stock && newQuantity > existing.stock
-                            ? existing.stock
-                            : newQuantity;
+                    if (existing) {
+                        const newQuantity = existing.quantity + item.quantity;
 
+                        // stock check
+                        const finalQuantity =
+                            existing.stock && newQuantity > existing.stock
+                                ? existing.stock
+                                : newQuantity;
+
+                        set({
+                            normalItems: items.map((i) =>
+                                i.id === item.id
+                                    ? { ...i, quantity: finalQuantity }
+                                    : i,
+                            ),
+                        });
+                    } else {
+                        set({ normalItems: [...items, item] });
+                    }
+
+                    setTimeout(broadcastChanges, 0);
+                },
+
+                removeNormalItem: (id: number) => {
                     set({
-                        normalItems: items.map((i) =>
-                            i.id === item.id
-                                ? { ...i, quantity: finalQuantity }
-                                : i,
+                        normalItems: get().normalItems.filter(
+                            (i) => i.id !== id,
                         ),
                     });
-                } else {
-                    set({ normalItems: [...items, item] });
-                }
-            },
+                    setTimeout(broadcastChanges, 0);
+                },
 
-            removeNormalItem: (id: number) => {
-                set({
-                    normalItems: get().normalItems.filter((i) => i.id !== id),
-                });
-            },
+                updateQuantity: (id: number, quantity: number) => {
+                    if (quantity < 1) return;
 
-            updateQuantity: (id: number, quantity: number) => {
-                if (quantity < 1) return;
+                    const items = get().normalItems;
+                    const existing = items.find((item) => item.id === id);
 
-                const items = get().normalItems;
-                const existing = items.find((item) => item.id === id);
+                    if (!existing) return;
 
-                if (!existing) return;
+                    const maxQuantity =
+                        existing.stock && quantity > existing.stock
+                            ? existing.stock
+                            : quantity;
 
-                const maxQuantity =
-                    existing.stock && quantity > existing.stock
-                        ? existing.stock
-                        : quantity;
+                    set({
+                        normalItems: items.map((item) =>
+                            item.id === id
+                                ? { ...item, quantity: maxQuantity }
+                                : item,
+                        ),
+                    });
+                    setTimeout(broadcastChanges, 0);
+                },
 
-                set({
-                    normalItems: items.map((item) =>
-                        item.id === id
-                            ? { ...item, quantity: maxQuantity }
-                            : item,
-                    ),
-                });
-            },
+                addBoxDeal: (deal: BoxDeal) => {
+                    const deals = get().boxDeals;
+                    set({ boxDeals: [...deals, deal] });
+                    setTimeout(broadcastChanges, 0);
+                },
 
-            addBoxDeal: (deal: BoxDeal) => {
-                const deals = get().boxDeals;
-                set({ boxDeals: [...deals, deal] });
-            },
+                updateBoxDealItems: (dealId: number, items: Product[]) => {
+                    set({
+                        boxDeals: get().boxDeals.map((deal) =>
+                            deal.id === dealId
+                                ? { ...deal, selectedItems: items }
+                                : deal,
+                        ),
+                    });
+                    setTimeout(broadcastChanges, 0);
+                },
 
-            updateBoxDealItems: (dealId: number, items: Product[]) => {
-                set({
-                    boxDeals: get().boxDeals.map((deal) =>
-                        deal.id === dealId
-                            ? { ...deal, selectedItems: items }
-                            : deal,
-                    ),
-                });
-            },
+                removeBoxDeal: (dealId: number) => {
+                    set({
+                        boxDeals: get().boxDeals.filter((d) => d.id !== dealId),
+                    });
+                    setTimeout(broadcastChanges, 0);
+                },
 
-            removeBoxDeal: (dealId: number) => {
-                set({
-                    boxDeals: get().boxDeals.filter((d) => d.id !== dealId),
-                });
-            },
+                clearCart: () => {
+                    set({ normalItems: [], boxDeals: [] });
+                    setTimeout(broadcastChanges, 0);
+                },
 
-            clearCart: () => set({ normalItems: [], boxDeals: [] }),
-        }),
+                syncFromBroadcast: (newState) => {
+                    set({
+                        normalItems: newState.normalItems,
+                        boxDeals: newState.boxDeals,
+                    });
+                },
+            };
+        },
         {
             name: "cart-storage",
             storage: createJSONStorage(() => localStorage),
         },
     ),
 );
+
+if (broadcastChannel) {
+    broadcastChannel.onmessage = (event) => {
+        if (event.data && event.data.normalItems !== undefined) {
+            setTimeout(() => {
+                useCartStore.getState().syncFromBroadcast(event.data);
+            }, 50);
+        }
+    };
+}
