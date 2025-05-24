@@ -212,7 +212,7 @@
 
 @layer components {
     .container {
-        @apply w-full !mx-auto !max-w-7xl max-[1280px]:px-2.5;
+        @apply w-full !mx-auto px-6 !max-w-7xl max-[1280px]:px-2.5;
     }
 
     .gradient {

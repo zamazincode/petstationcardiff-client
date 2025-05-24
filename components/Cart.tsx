@@ -1,4 +1,5 @@
 "use client";
+
 import { ShoppingBag } from "lucide-react";
 import {
     Sheet,
@@ -51,13 +52,15 @@ export default function Cart() {
         normalItems.reduce((acc, item) => acc + item.price * item.quantity, 0) +
         boxDeals.reduce((acc, deal) => acc + deal.price, 0);
 
+    const [open, setOpen] = useState(false);
+
     return (
         <div className="relative p-2 rounded-full border">
             <span className="bg-primary text-sm text-white w-5 h-5 flex items-center justify-center rounded-full !absolute -right-1 -top-1">
                 {totalItemCount}
             </span>
 
-            <Sheet>
+            <Sheet open={open} onOpenChange={setOpen}>
                 <SheetTrigger
                     className="cursor-pointer hover:text-primary"
                     asChild
@@ -133,8 +136,8 @@ export default function Cart() {
                                                         )}
                                                     </div>
                                                     <div className="text-sm font-semibold w-fit mt-2">
+                                                        £{" "}
                                                         {deal.price.toFixed(2)}{" "}
-                                                        £
                                                     </div>
                                                 </div>
                                             </div>
@@ -153,11 +156,12 @@ export default function Cart() {
                                                 Subtotal:{" "}
                                             </span>
                                             <span className="text-primary font-bold text-lg">
-                                                {subTotal.toFixed(2)}
+                                                £ {subTotal.toFixed(2)}
                                             </span>
                                         </div>
                                         <Link
                                             href="/checkout"
+                                            onClick={() => setOpen(false)}
                                             className="w-full py-2.5 rounded-lg bg-primary text-white flex items-center justify-center"
                                         >
                                             Check Out
@@ -203,7 +207,7 @@ const Product = ({ item }) => {
                 </div>
                 <div className="flex items-end justify-between">
                     <div className="text-sm font-semibold">
-                        {(item.price * item.quantity).toFixed(2)} £
+                        £ {(item.price * item.quantity).toFixed(2)}
                     </div>
                     <div className="flex items-center gap-2">
                         <button

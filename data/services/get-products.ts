@@ -7,7 +7,7 @@ export async function getProducts(
     const url = getStrapiURL() + "/api/products" + query;
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { cache: "no-store" });
 
         if (!response.ok) {
             const errorData = await response.json();
@@ -30,7 +30,7 @@ export async function getBoxDeals(
     const url = getStrapiURL() + "/api/box-deals" + query;
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { cache: "no-store" });
 
         if (!response.ok) {
             const errorData = await response.json();

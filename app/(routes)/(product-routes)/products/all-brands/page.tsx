@@ -50,19 +50,19 @@ export default function AllBrandsPage() {
 
     useEffect(() => {
         resetFilters();
+    }, []);
 
+    useEffect(() => {
         const initialBrand = searchParams.get("brand") || "";
         const initialCategory = searchParams.get("category") || "";
         const initialPet = searchParams.get("pet") || "";
         const initialSearchTerm = searchParams.get("search") || "";
 
-        useFilterStore.setState({
-            brand: initialBrand,
-            category: initialCategory,
-            pet: initialPet,
-            search: initialSearchTerm,
-        });
-    }, [pathname]);
+        setFilter("brand", initialBrand);
+        setFilter("category", initialCategory);
+        setFilter("pet", initialPet);
+        setFilter("search", initialSearchTerm);
+    }, [pathname, searchParams]);
 
     // fetch filtered data
     useEffect(() => {
@@ -129,28 +129,7 @@ export default function AllBrandsPage() {
         };
 
         fetchData();
-
-        // URL
-        const params = new URLSearchParams(searchParams.toString());
-        if (brand) params.set("brand", brand);
-        else params.delete("brand");
-
-        if (category) params.set("category", category);
-        else params.delete("category");
-
-        if (pet) params.set("pet", pet);
-        else params.delete("pet");
-
-        if (search) params.set("search", search);
-        else params.delete("search");
-
-        const newUrl = `${pathname}?${params.toString()}`;
-        const currentUrl = `${pathname}?${searchParams.toString()}`;
-
-        if (newUrl !== currentUrl) {
-            router.replace(newUrl, { scroll: false });
-        }
-    }, [pet, category, brand, searchParams, priceRange, search]);
+    }, [pet, category, brand, search, priceRange]);
 
     if (!ready) return;
 

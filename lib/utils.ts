@@ -16,3 +16,7 @@ export async function markdownToHtml(markdown: any) {
     console.log(result);
     return result.toString();
 }
+
+export function getSiteURL() {
+    return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+}

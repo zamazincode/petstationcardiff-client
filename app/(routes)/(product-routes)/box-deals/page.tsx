@@ -19,7 +19,6 @@ import BrandFilter from "@/components/product/BrandsFilter";
 type MixedItem = Product | BoxDeal;
 
 export default function BoxDealsPage() {
-    const router = useRouter();
     const pathname = usePathname();
 
     const { ready, isMobile, isTablet } = useDevice();

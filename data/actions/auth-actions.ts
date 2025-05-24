@@ -1,5 +1,5 @@
 "use server";
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 

@@ -99,15 +99,21 @@ export default function HeaderClient({ isAuth }: { isAuth: boolean }) {
                                         isIcon={false}
                                         className="p-2 h-full !aspect-square rounded-full border cursor-pointer"
                                     >
-                                        <Link href="/profile" className="">
-                                            <User2 />
-                                        </Link>
+                                        {/* <Link
+                                            href={
+                                                isAuth
+                                                    ? "/profile/my-orders"
+                                                    : "/login"
+                                            }
+                                        > */}
+                                        <User2 />
+                                        {/* </Link> */}
                                     </NavigationMenuTrigger>
 
                                     <NavigationMenuContent>
                                         {isAuth ? (
                                             <>
-                                                <NavigationMenuLink asChild>
+                                                {/* <NavigationMenuLink asChild>
                                                     <Link
                                                         href="/profile"
                                                         className="flex flex-row justify-between items-center hover:text-primary transition-colors text-nowrap gap-6 "
@@ -115,11 +121,11 @@ export default function HeaderClient({ isAuth }: { isAuth: boolean }) {
                                                         Profile
                                                         <User2 className="text-inherit" />
                                                     </Link>
-                                                </NavigationMenuLink>
+                                                </NavigationMenuLink> */}
 
                                                 <NavigationMenuLink asChild>
                                                     <Link
-                                                        href="/profile"
+                                                        href="/profile/my-orders"
                                                         className="flex flex-row justify-between items-center hover:text-primary transition-colors text-nowrap gap-6"
                                                     >
                                                         My Orders

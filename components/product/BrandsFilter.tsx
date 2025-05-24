@@ -11,7 +11,6 @@ import "swiper/css/pagination";
 import Image from "next/image";
 import { cn, getStrapiURL } from "@/lib/utils";
 import { useDevice } from "@/lib/hooks/useDevice";
-import { stat } from "fs";
 
 export default function BrandFilter({
     isInside = false,
@@ -113,7 +112,7 @@ export default function BrandFilter({
     }
 
     return (
-        <div className="mb-6 md:mx-auto md:w-full md:max-w-7xl ">
+        <div className="mb-6 container ">
             {isInside && <h3 className="text-base font-medium mb-2">Brands</h3>}
             <div
                 className={cn(

@@ -55,10 +55,10 @@ export default function MobileMenu() {
             </Link>
 
             <Link
-                href="/profile"
+                href="/profile/my-orders"
                 className={cn(
                     "rounded-xl p-1 flex flex-col items-center text-xs text-white font-medium gap-0.5 px-2",
-                    { "bg-white/40": path === "/profile" },
+                    { "bg-white/40": path === "/profile/my-orders" },
                 )}
             >
                 <User2 />

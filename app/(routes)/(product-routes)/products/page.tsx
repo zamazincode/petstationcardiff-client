@@ -49,6 +49,10 @@ export default function ProductsPage() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        resetFilters();
+    }, []);
+
+    useEffect(() => {
         const initialBrand = searchParams.get("brand") || "";
         const initialCategory = searchParams.get("category") || "";
         const initialPet = searchParams.get("pet") || "";
@@ -125,27 +129,6 @@ export default function ProductsPage() {
         };
 
         fetchData();
-
-        // URL
-        const params = new URLSearchParams(searchParams.toString());
-        if (brand) params.set("brand", brand);
-        else params.delete("brand");
-
-        if (category) params.set("category", category);
-        else params.delete("category");
-
-        if (pet) params.set("pet", pet);
-        else params.delete("pet");
-
-        if (search) params.set("search", search);
-        else params.delete("search");
-
-        const newUrl = `${pathname}?${params.toString()}`;
-        const currentUrl = `${pathname}?${searchParams.toString()}`;
-
-        if (newUrl !== currentUrl) {
-            router.replace(newUrl, { scroll: false });
-        }
     }, [pet, category, brand, search, priceRange]);
 
     if (!ready) return;
