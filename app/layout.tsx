@@ -7,6 +7,7 @@ import MobileMenu from "@/components/mobile/mobile-menu";
 import AutoScrollToTop from "@/components/AutoScrollTop";
 
 const sourGummy = Sour_Gummy({
+    subsets: ["latin"],
     variable: "--font-sour-gummy",
 });
 
