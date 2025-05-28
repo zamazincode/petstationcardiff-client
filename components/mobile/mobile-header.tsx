@@ -41,7 +41,7 @@ export default function MobileHeader() {
                         <SheetTitle>Menu</SheetTitle>
                         <SheetDescription className="mt-4" asChild>
                             {/* Menu */}
-                            <div className="flex justify-evenly w-full mr-32 max-md:flex-wrap max-md:justify-start gap-8">
+                            <div className="flex justify-evenly w-full mr-32 max-md:flex-wrap max-md:justify-start gap-8 flex-col">
                                 <ul className="space-y-1.5">
                                     <li className="font-semibold mb-4">
                                         Informations

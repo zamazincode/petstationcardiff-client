@@ -7,10 +7,10 @@ export default function Campaigns() {
     return (
         <div className="grid md:grid-cols-2 grid-cols-1 md:grid-rows-2 grid-flow-dense  lg:max-h-[600px] gap-6">
             <Link
-                href="/products/pet-station-raw-box-20"
+                href="/box-deals/pet-station-raw-box-20"
                 className="md:col-span-1 md:row-span-2 block relative overflow-hidden"
             >
-                <div className="absolute top-8 w-full text-center flex items-center justify-center flex-col gap-6">
+                <div className="absolute bottom-2 w-full text-center flex items-center justify-center flex-col gap-6">
                     <h5 className="text-2xl lg:text-4xl font-bold text-neutral-50">
                         Petstation Mix Box <br />
                         <span className="text-primary">Deal x20</span>
@@ -49,10 +49,10 @@ export default function Campaigns() {
             </Link>
 
             <Link
-                href="/products/pet-station-raw-box-20"
+                href="/box-deals/southcliffe-mince-mix-box-deal-x30"
                 className="md:col-span-1 md:row-span-1 block relative overflow-hidden"
             >
-                <div className="absolute top-8 w-full text-center flex items-center justify-center flex-col gap-6">
+                <div className="absolute bottom-2 w-full text-center flex items-center justify-center flex-col gap-6">
                     <h5 className="text-2xl lg:text-4xl font-bold text-neutral-50">
                         Petstation Mix Box <br />
                         <span className="text-primary">Deal x20</span>
@@ -91,10 +91,10 @@ export default function Campaigns() {
             </Link>
 
             <Link
-                href="/products/pet-station-raw-box-20"
+                href="/box-deals/just-natural-mix-box-20"
                 className="md:col-span-1 md:row-span-1 block relative overflow-hidden"
             >
-                <div className="absolute top-8 w-full text-center flex items-center justify-center flex-col gap-6">
+                <div className="absolute bottom-2 w-full text-center flex items-center justify-center flex-col gap-6">
                     <h5 className="text-2xl lg:text-4xl font-bold text-neutral-50">
                         Petstation Mix Box <br />
                         <span className="text-primary">Deal x20</span>
