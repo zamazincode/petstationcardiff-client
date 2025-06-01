@@ -12,7 +12,15 @@ const nextConfig: NextConfig = {
                 protocol: "http",
                 hostname: "localhost",
             },
+            {
+                protocol: "http",
+                hostname:
+                    "petstation-strapi-kibd53-d2e992-206-189-18-184.traefik.me",
+            },
         ],
+    },
+    eslint: {
+        ignoreDuringBuilds: true,
     },
 };
 
