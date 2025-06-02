@@ -6,13 +6,16 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-type OrderDetailProps = {
-    params: { documentId: string };
-};
-
-export default async function OrderDetailPage({ params }: OrderDetailProps) {
+export default async function OrderDetailPage({
+    params,
+}: {
+    params: Promise<{ documentId: string }>;
+}) {
     const { documentId } = await params;
-    const order = await getOrder(documentId);
+    let order: any;
+    if (documentId) {
+        order = await getOrder(documentId);
+    }
 
     const {
         id,
