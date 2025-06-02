@@ -16,8 +16,7 @@ const config = {
     path: "/",
     domain: process.env.HOST ?? "localhost",
     httpOnly: true,
-    // secure: process.env.NODE_ENV === "production",
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
 };
 
 // register form validation schema
