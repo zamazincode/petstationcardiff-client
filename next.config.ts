@@ -13,9 +13,8 @@ const nextConfig: NextConfig = {
                 hostname: "localhost",
             },
             {
-                protocol: "http",
-                hostname:
-                    "petstation-strapi-kibd53-d2e992-206-189-18-184.traefik.me",
+                protocol: "https",
+                hostname: "admin.petstationcardiff.com",
             },
         ],
     },
