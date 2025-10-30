@@ -42,6 +42,7 @@ export default async function Success({ searchParams }) {
     if (status === "complete") {
         // update order status
         const orderId = metadata?.orderId;
+
         if (orderId) {
             const res = await putOrder(orderId, formattedPaymentMethod);
 

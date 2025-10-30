@@ -13,7 +13,7 @@ export default function RoutesLayout({
             <MoveTop />
             <Header />
             <MobileHeader />
-            <main className="min-h-screen">{children}</main>
+            <main>{children}</main>
             <Footer />
         </>
     );

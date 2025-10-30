@@ -1,6 +1,6 @@
 export default function PrivacyPolicyPage() {
     return (
-        <section className="space-y-4 container mt-4">
+        <section className="space-y-4 container mt-4 pb-32">
             <h1 className="text-4xl font-bold mb-4 text-copy">
                 Terms & Conditions
             </h1>

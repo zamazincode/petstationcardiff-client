@@ -12,7 +12,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
-import { Headset, Mail, MapPin, Phone } from "lucide-react";
+import { Headset } from "lucide-react";
 import { footerLinks } from "@/lib/constants/menu";
 
 export default function MobileHeader() {
@@ -132,7 +132,7 @@ export default function MobileHeader() {
                 </SheetContent>
             </Sheet>
 
-            <Logo className="text-lg" />
+            <Logo className="text-lg" variant="link" />
 
             <Cart />
         </header>

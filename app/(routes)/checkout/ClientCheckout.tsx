@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { ZodErrors } from "@/components/zod-errors";
 import { checkoutAction } from "@/data/actions/checkout-action";
+import { checkStock } from "@/data/services/check-stock";
 import { useCartStore } from "@/lib/stores/cartStore";
 import Image from "next/image";
 
@@ -27,6 +28,9 @@ export default function ClientCheckout({ user }: { user: boolean }) {
     const normalItems = useCartStore((state) => state.normalItems);
     const boxDeals = useCartStore((state) => state.boxDeals);
 
+    const updateQuantity = useCartStore((state) => state.updateQuantity);
+    const removeNormalItem = useCartStore((state) => state.removeNormalItem);
+
     const subTotal =
         normalItems.reduce((acc, item) => acc + item.price * item.quantity, 0) +
         boxDeals.reduce((acc, deal) => acc + deal.price, 0);
@@ -38,12 +42,32 @@ export default function ClientCheckout({ user }: { user: boolean }) {
 
     const router = useRouter();
 
-    // if there is no item in cart route
     useEffect(() => {
+        // if there is no item in cart route
         if (normalItems.length === 0 && boxDeals.length === 0) {
             router.push("/");
             toast.warning("There is no item in your cart!");
         }
+
+        // check stock
+        const checkStocks = async () => {
+            for (const item of normalItems) {
+                const stock = await checkStock(item.slug, item.quantity);
+                if (stock === 0) {
+                    removeNormalItem(item.id);
+                    toast.warning(
+                        "Some products deleted from cart. Because there is no stock.",
+                    );
+                } else if (item.quantity > stock) {
+                    updateQuantity(item.id, stock);
+                    toast.warning(
+                        "Some products deleted from cart. Because there is no stock.",
+                    );
+                }
+            }
+        };
+
+        checkStocks();
     }, []);
 
     useEffect(() => {

@@ -20,6 +20,9 @@ export default function Cart() {
     // to force re-render on broadcast events
     const [, setForceUpdate] = useState({});
 
+    const menuState = useCartStore((state) => state.menuState);
+    const toggleMenu = useCartStore((state) => state.toggleMenu);
+    const closeMenu = useCartStore((state) => state.closeMenu);
     const normalItems = useCartStore((state) => state.normalItems);
     const boxDeals = useCartStore((state) => state.boxDeals);
     const removeBoxDeal = useCartStore((state) => state.removeBoxDeal);
@@ -52,7 +55,7 @@ export default function Cart() {
         normalItems.reduce((acc, item) => acc + item.price * item.quantity, 0) +
         boxDeals.reduce((acc, deal) => acc + deal.price, 0);
 
-    const [open, setOpen] = useState(false);
+    // const [open, setOpen] = useState(false);
 
     return (
         <div className="relative p-2 rounded-full border">
@@ -60,7 +63,7 @@ export default function Cart() {
                 {totalItemCount}
             </span>
 
-            <Sheet open={open} onOpenChange={setOpen}>
+            <Sheet open={menuState} onOpenChange={toggleMenu}>
                 <SheetTrigger
                     className="cursor-pointer hover:text-primary"
                     asChild
@@ -161,7 +164,7 @@ export default function Cart() {
                                         </div>
                                         <Link
                                             href="/checkout"
-                                            onClick={() => setOpen(false)}
+                                            onClick={() => closeMenu()}
                                             className="w-full py-2.5 rounded-lg bg-primary text-white flex items-center justify-center"
                                         >
                                             Check Out

@@ -22,6 +22,8 @@ export interface BoxDeal {
 }
 
 export interface CartState {
+    menuState: boolean;
+
     normalItems: Product[];
     boxDeals: BoxDeal[];
 
@@ -34,6 +36,10 @@ export interface CartState {
     removeBoxDeal: (dealId: number) => void;
 
     clearCart: () => void;
+
+    openMenu: () => void;
+    toggleMenu: () => void;
+    closeMenu: () => void;
 
     syncFromBroadcast: (
         newState: Pick<CartState, "normalItems" | "boxDeals">,
@@ -63,6 +69,7 @@ export const useCartStore = create<CartState>()(
             };
 
             return {
+                menuState: false,
                 normalItems: [],
                 boxDeals: [],
 
@@ -91,6 +98,8 @@ export const useCartStore = create<CartState>()(
                     }
 
                     setTimeout(broadcastChanges, 0);
+
+                    set({ menuState: true });
                 },
 
                 removeNormalItem: (id: number) => {
@@ -123,6 +132,8 @@ export const useCartStore = create<CartState>()(
                         ),
                     });
                     setTimeout(broadcastChanges, 0);
+
+                    set({ menuState: true });
                 },
 
                 addBoxDeal: (deal: BoxDeal) => {
@@ -152,6 +163,18 @@ export const useCartStore = create<CartState>()(
                 clearCart: () => {
                     set({ normalItems: [], boxDeals: [] });
                     setTimeout(broadcastChanges, 0);
+                },
+
+                openMenu: () => {
+                    set({ menuState: true });
+                },
+
+                closeMenu: () => {
+                    set({ menuState: false });
+                },
+
+                toggleMenu: () => {
+                    set((state) => ({ menuState: !state.menuState }));
                 },
 
                 syncFromBroadcast: (newState) => {

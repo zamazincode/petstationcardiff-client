@@ -3,17 +3,18 @@ import Logo from "../Logo";
 import { Headset, HeartPulse, Leaf, Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 import { footerLinks } from "@/lib/constants/menu";
+import dogPhoto from "@/public/dog.png";
 
 export default function Footer() {
     return (
         <footer className="gradient relative h-full mb-0 pt-12 mt-20">
             <Image
-                src="/dog.png"
+                src={dogPhoto}
                 alt="Dog Photo"
-                width={354}
-                height={497}
+                width={300}
+                height={450}
                 draggable={false}
-                className="absolute -top-78 right-0 z-10 max-sm:w-[200px] max-sm:-top-44 "
+                className="absolute -top-66 right-0 z-10 max-md:w-[200px] max-md:-top-44 "
                 priority
             />
 

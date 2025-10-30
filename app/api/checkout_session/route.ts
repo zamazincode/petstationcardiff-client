@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
                 quantity: item.quantity,
             })),
             {
+                // Shipping cost
                 price_data: {
                     currency: "gbp",
                     product_data: {
