@@ -7,36 +7,37 @@ import MobileMenu from "@/components/mobile/mobile-menu";
 import AutoScrollToTop from "@/components/AutoScrollTop";
 
 const sourGummy = Sour_Gummy({
-    subsets: ["latin"],
-    variable: "--font-sour-gummy",
+	subsets: ["latin"],
+	variable: "--font-sour-gummy",
 });
 
 const poppings = Poppins({
-    subsets: ["latin"],
-    weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-    variable: "--font-poppins",
+	subsets: ["latin"],
+	weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+	variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
-    title: "Petstation Cardiff",
-    description: "Petstation Cardiff",
+	title: "The Raw Pet Station Cardiff - Raw Pet Supplier - Raw Dog Food -",
+	description:
+		"The Raw Pet Station Cardiff, your premier pet destination, is a raw food supplier and pet shop located in Cardiff since December 2018.",
 };
 
 export default function RootLayout({
-    children,
+	children,
 }: Readonly<{
-    children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-    return (
-        <html lang="en">
-            <body
-                className={`${poppings.className} ${sourGummy.variable} antialiased `}
-            >
-                <AutoScrollToTop />
-                <MobileMenu />
-                {children}
-                <Toaster />
-            </body>
-        </html>
-    );
+	return (
+		<html lang="en">
+			<body
+				className={`${poppings.className} ${sourGummy.variable} antialiased `}
+			>
+				<AutoScrollToTop />
+				<MobileMenu />
+				{children}
+				<Toaster />
+			</body>
+		</html>
+	);
 }

@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
 				protocol: "http",
 				hostname: "admin.petstationcardiff.com",
 			},
+
+			{
+				protocol: "https",
+				hostname: "admin.therawpetstationcardiff.com",
+			},
 		],
 	},
 	eslint: {
