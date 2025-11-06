@@ -11,6 +11,12 @@ import {
 	NavigationMenuList,
 	NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { LogIn, Package2, User2 } from "lucide-react";
 import SearchBar from "../SearchBar";
 import Cart from "../Cart";
@@ -92,80 +98,55 @@ export default function HeaderClient({ isAuth }: { isAuth: boolean }) {
 					<div className="flex items-center justify-center gap-4">
 						<SearchBar />
 
-						<NavigationMenu>
-							<NavigationMenuList>
-								<NavigationMenuItem>
-									<NavigationMenuTrigger
-										isIcon={false}
-										className="p-2 h-full !aspect-square rounded-full border cursor-pointer"
-									>
-										{/* <Link
-											href={
-												isAuth
-													? "/profile/my-orders"
-													: "/login"
-											}
-										> */}
-										<User2 />
-										{/* </Link> */}
-									</NavigationMenuTrigger>
+						{isAuth ? (
+							<NavigationMenu>
+								<NavigationMenuList>
+									<NavigationMenuItem>
+										<NavigationMenuTrigger
+											isIcon={false}
+											className="p-2 h-full !aspect-square rounded-full border cursor-pointer"
+										>
+											<User2 />
+										</NavigationMenuTrigger>
 
-									<NavigationMenuContent>
-										{isAuth ? (
-											<>
-												{/* <NavigationMenuLink asChild>
-                                                    <Link
-                                                        href="/profile"
-                                                        className="flex flex-row justify-between items-center hover:text-primary transition-colors text-nowrap gap-6 "
-                                                    >
-                                                        Profile
-                                                        <User2 className="text-inherit" />
-                                                    </Link>
-                                                </NavigationMenuLink> */}
-
-												<NavigationMenuLink asChild>
-													<Link
-														href="/profile/my-orders"
-														className="flex flex-row justify-between items-center hover:text-primary transition-colors text-nowrap gap-6"
-													>
-														My Orders
-														<Package2 className="text-inherit" />
-													</Link>
-												</NavigationMenuLink>
-
-												<NavigationMenuLink
-													asChild
-													className="p-0 py-0 bg-transparent hover:bg-transparent"
+										<NavigationMenuContent>
+											<NavigationMenuLink asChild>
+												<Link
+													href="/profile/my-orders"
+													className="flex flex-row justify-between items-center hover:text-primary transition-colors text-nowrap gap-6"
 												>
-													<LogoutButton />
-												</NavigationMenuLink>
-											</>
-										) : (
-											<>
-												<NavigationMenuLink asChild>
-													<Link
-														href="/login"
-														className="flex flex-row justify-between items-center hover:text-primary transition-colors text-nowrap gap-6"
-													>
-														Log In
-														<LogIn className="text-inherit" />
-													</Link>
-												</NavigationMenuLink>
-												<NavigationMenuLink asChild>
-													<Link
-														href="/register"
-														className="flex flex-row justify-between items-center hover:text-primary transition-colors text-nowrap gap-6"
-													>
-														Sign Up
-														<User2 className="text-inherit" />
-													</Link>
-												</NavigationMenuLink>
-											</>
-										)}
-									</NavigationMenuContent>
-								</NavigationMenuItem>
-							</NavigationMenuList>
-						</NavigationMenu>
+													My Orders
+													<Package2 className="text-inherit" />
+												</Link>
+											</NavigationMenuLink>
+
+											<NavigationMenuLink
+												asChild
+												className="p-0 py-0 bg-transparent hover:bg-transparent"
+											>
+												<LogoutButton />
+											</NavigationMenuLink>
+										</NavigationMenuContent>
+									</NavigationMenuItem>
+								</NavigationMenuList>
+							</NavigationMenu>
+						) : (
+							<TooltipProvider>
+								<Tooltip>
+									<TooltipTrigger asChild>
+										<Link
+											href="/login"
+											className="p-2 h-full aspect-square rounded-full border cursor-pointer flex items-center justify-center hover:bg-gray-50 transition-colors"
+										>
+											<User2 />
+										</Link>
+									</TooltipTrigger>
+									<TooltipContent>
+										<p>Log In</p>
+									</TooltipContent>
+								</Tooltip>
+							</TooltipProvider>
+						)}
 
 						<Cart />
 					</div>

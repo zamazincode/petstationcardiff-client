@@ -275,7 +275,7 @@ export default function ProductsPage() {
 							{[...Array(9).keys()].map((i) => (
 								<div
 									key={i}
-									className="rounded-2xl border mx-auto w-full h-full max-w-[300px] flex flex-col"
+									className="rounded-2xl mx-auto w-full h-full max-w-[300px] flex flex-col"
 								>
 									<Skeleton className="rounded-md aspect-square max-h-[230px] relative flex items-center justify-center" />
 									<Skeleton className="w-full h-12 my-2" />
