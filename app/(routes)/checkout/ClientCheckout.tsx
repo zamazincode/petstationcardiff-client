@@ -98,7 +98,6 @@ export default function ClientCheckout({ user }: { user: boolean }) {
 		email: "",
 		note: "",
 		differentAddress: false,
-		confirm: false,
 		terms: false,
 	});
 

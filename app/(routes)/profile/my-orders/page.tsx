@@ -44,10 +44,11 @@ export default async function MyOrders() {
 									<p className="font-medium">Order Status</p>
 									<Badge
 										className={`uppercase ${
-											order.orderStatus === "completed" ||
 											(order.orderStatus ===
-												"ready_to_take" &&
-												"bg-green-500")
+												"completed" ||
+												order.orderStatus ===
+													"ready_to_take") &&
+											"bg-green-500"
 										} ${
 											(order.orderStatus ===
 												"cancelled" ||

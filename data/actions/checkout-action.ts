@@ -5,6 +5,8 @@ import { getUserMeLoader } from "../services/get-user-me-loader";
 import { getBoxDeals, getProducts } from "../services/get-products";
 import { getSiteURL } from "@/lib/utils";
 import { createOrder } from "../services/order-service";
+import { checkStock } from "../services/check-stock";
+import { BoxDeal, Product } from "@/lib/stores/cartStore";
 
 const required = (message: string) => z.string().min(1, { message });
 
@@ -75,104 +77,199 @@ export async function checkoutAction(prevState: any, formData: FormData) {
 			shippingAddress = billingAddress;
 		}
 
-		// products
-		const normalItems = JSON.parse(formData.get("normalItems") as string);
-		const boxDeals = JSON.parse(formData.get("boxDeals") as string);
+		// Parse cart items from client (zustand store)
+		const normalItemsFromClient: Product[] = JSON.parse(
+			formData.get("normalItems") as string,
+		);
+		const boxDealsFromClient: BoxDeal[] = JSON.parse(
+			formData.get("boxDeals") as string,
+		);
+
+		// Validate and calculate prices from backend
+		let totalPrice = 0;
+		const validatedNormalItems: Product[] = [];
+
+		// CRITICAL: Validate normal items with backend data
+		if (normalItemsFromClient.length > 0) {
+			for (const item of normalItemsFromClient) {
+				// Get real product data from backend
+				const query = `?filters[slug][$eq]=${item.slug}`;
+				const { data, error } = await getProducts(query);
+
+				if (error || !data || data.length === 0) {
+					return {
+						error: `Product ${item.slug} not found`,
+					};
+				}
+
+				const product = data[0];
+
+				// Check stock availability
+				const availableStock = await checkStock(
+					item.slug,
+					item.quantity,
+				);
+
+				if (availableStock === 0) {
+					return {
+						error: `${product.name} is out of stock`,
+					};
+				}
+
+				if (item.quantity > availableStock) {
+					return {
+						error: `Only ${availableStock} units available for ${product.name}`,
+					};
+				}
+
+				// Use backend price, not client price!
+				const backendPrice = product.salePrice || product.price;
+				const itemTotal = backendPrice * item.quantity;
+				totalPrice += itemTotal;
+
+				validatedNormalItems.push({
+					id: item.id,
+					slug: item.slug,
+					name: product.name,
+					price: backendPrice,
+					quantity: item.quantity,
+					stock: availableStock,
+					image: item.image,
+				});
+			}
+		}
+
+		// CRITICAL: Validate box deals with backend data
+		const validatedBoxDeals: BoxDeal[] = [];
+		if (boxDealsFromClient.length > 0) {
+			for (const deal of boxDealsFromClient) {
+				const query = `?filters[slug][$eq]=${deal.slug}`;
+				const { data, error } = await getBoxDeals(query);
+
+				if (error || !data || data.length === 0) {
+					return {
+						error: `Box deal ${deal.slug} not found`,
+					};
+				}
+
+				const boxDealData = data[0];
+
+				// Use backend price, not client price!
+				const backendPrice = boxDealData.salePrice || boxDealData.price;
+				totalPrice += backendPrice;
+
+				// Validate selected items in box deal
+				const validatedSelectedItems: Product[] = [];
+				for (const selectedItem of deal.selectedItems) {
+					const itemQuery = `?filters[slug][$eq]=${selectedItem.slug}`;
+					const { data: itemData } = await getProducts(itemQuery);
+
+					if (itemData && itemData.length > 0) {
+						const itemProduct = itemData[0];
+						validatedSelectedItems.push({
+							id: selectedItem.id,
+							slug: selectedItem.slug,
+							name: itemProduct.name,
+							price: itemProduct.salePrice || itemProduct.price,
+							quantity: selectedItem.quantity,
+							image: selectedItem.image,
+						});
+					}
+				}
+
+				validatedBoxDeals.push({
+					id: deal.id,
+					slug: deal.slug,
+					name: boxDealData.name,
+					maxSelection: deal.maxSelection,
+					price: backendPrice,
+					selectedItems: validatedSelectedItems,
+					image: deal.image,
+				});
+			}
+		}
+
+		// Calculate shipping
+		const shipType =
+			formData.get("shipping") === "local" ? "local" : "flat";
+		const shipPrice = shipType === "local" ? 0 : 4;
+		totalPrice += shipPrice;
 
 		const orderItems = {
-			normalItems,
-			boxDeals,
+			normalItems: validatedNormalItems,
+			boxDeals: validatedBoxDeals,
 		};
 
-		// total price
-		let totalPrice = 0;
-
-		if (normalItems.length > 0) {
-			for (const item of normalItems) {
-				const query = `?filters[slug][$eq]=${item.slug}`;
-
-				const { data, error } = await getProducts(query);
-				if (error) {
-					return {
-						error: "Couldn't get the products price!",
-					};
-				}
-
-				const price = data[0].salePrice
-					? data[0].salePrice
-					: data[0].price;
-				totalPrice += price;
-			}
-		}
-
-		if (boxDeals.length > 0) {
-			for (const item of boxDeals) {
-				const query = `?filters[slug][$eq]=${item.slug}`;
-
-				const { data, error } = await getBoxDeals(query);
-				if (error) {
-					return {
-						error: "Couldn't get the box deal price!",
-					};
-				}
-				item.quantity = 1;
-				const price = data[0].salePrice
-					? data[0].salePrice
-					: data[0].price;
-				totalPrice += price;
-			}
-		}
-
-		const shipPrice =
-			(formData.get("shipping") as string) === "local" ? 0 : 4;
-		totalPrice += shipPrice;
-		const shipType =
-			(formData.get("shipping") as string) === "local" ? "local" : "flat";
-
-		// shipping note
-		const note = formData.get("note") as string;
-
-		const data = {
+		const orderData = {
 			orderItems: JSON.stringify(orderItems),
 			totalPrice,
 			user: userId,
-			email,
+			email: validatedFields.data.email,
 			billingAddress,
 			shippingAddress,
-			note: note || "",
+			note: (formData.get("note") as string) || "",
 			shipType,
 			shipCost: shipPrice,
 			url: null,
 		};
 
-		// create order
-		const order_res = await createOrder(data);
-		if (order_res.error) {
+		// Create order
+		const orderResult = await createOrder(orderData);
+		if (orderResult.error) {
 			return {
-				error: order_res.err,
+				error: orderResult.error || "Failed to create order",
 			};
 		}
 
 		// stripe
-		const items = [...normalItems, ...boxDeals];
-		const res = await fetch(getSiteURL() + "/api/checkout_session", {
-			method: "POST",
-			body: JSON.stringify({
-				items,
-				shipPrice,
-				email,
-				orderId: order_res.order.documentId,
-			}),
-		});
-		const _data = await res.json();
-		if (_data.error) {
-			return { error: "An error occured in payment!" };
+		// Prepare items for Stripe (normal items + box deals flattened)
+		const stripeItems = [
+			...validatedNormalItems.map((item) => ({
+				slug: item.slug,
+				name: item.name,
+				price: item.price,
+				quantity: item.quantity,
+			})),
+			...validatedBoxDeals.map((deal) => ({
+				slug: deal.slug,
+				name: deal.name,
+				price: deal.price,
+				quantity: 1, // Box deals always have quantity 1
+			})),
+		];
+
+		// Create Stripe checkout session
+		const stripeResponse = await fetch(
+			getSiteURL() + "/api/checkout_session",
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					items: stripeItems,
+					shipPrice,
+					email: validatedFields.data.email,
+					orderId: orderResult.order.documentId,
+				}),
+			},
+		);
+
+		const stripeData = await stripeResponse.json();
+
+		if (stripeData.error || !stripeData.url) {
+			return {
+				error: "Payment processing failed. Please try again.",
+			};
 		}
 
-		data.url = _data.url;
-
-		return data;
+		return {
+			url: stripeData.url,
+		};
 	} catch (err) {
-		return { error: "An error occured!" };
+		console.error("Checkout error:", err);
+		return {
+			error: "An unexpected error occurred. Please try again.",
+		};
 	}
 }

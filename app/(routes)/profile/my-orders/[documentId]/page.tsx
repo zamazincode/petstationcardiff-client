@@ -63,9 +63,9 @@ export default async function OrderDetailPage({
 					<span className="font-medium">Order Status:</span>
 					<Badge
 						className={`uppercase ${
-							order.orderStatus === "completed" ||
-							(order.orderStatus === "ready_to_take" &&
-								"bg-green-500")
+							(order.orderStatus === "completed" ||
+								order.orderStatus === "ready_to_take") &&
+							"bg-green-500"
 						} ${
 							(order.orderStatus === "cancelled" ||
 								order.orderStatus === "refunded") &&
