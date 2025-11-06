@@ -15,6 +15,8 @@ import { Minus, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { checkStock } from "@/data/services/check-stock";
+import { toast } from "sonner";
 
 export default function Cart() {
 	// to force re-render on broadcast events
@@ -26,6 +28,8 @@ export default function Cart() {
 	const normalItems = useCartStore((state) => state.normalItems);
 	const boxDeals = useCartStore((state) => state.boxDeals);
 	const removeBoxDeal = useCartStore((state) => state.removeBoxDeal);
+	const removeNormalItem = useCartStore((state) => state.removeNormalItem);
+	const updateQuantity = useCartStore((state) => state.updateQuantity);
 
 	useEffect(() => {
 		let broadcastChannel: BroadcastChannel | null = null;
@@ -47,8 +51,26 @@ export default function Cart() {
 		};
 	}, []);
 
+	// check stock
 	useEffect(() => {
-		// TODO: check stock
+		const checkStocks = async () => {
+			for (const item of normalItems) {
+				const stock = await checkStock(item.slug, item.quantity);
+				if (stock === 0) {
+					removeNormalItem(item.id);
+					toast.warning(
+						"Some products deleted from cart. Because there is no stock.",
+					);
+				} else if (item.quantity > stock) {
+					updateQuantity(item.id, stock);
+					toast.warning(
+						"Some products deleted from cart. Because there is no stock.",
+					);
+				}
+			}
+		};
+
+		checkStocks();
 	}, [menuState]);
 
 	const totalItemCount =
